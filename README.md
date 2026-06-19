@@ -1,17 +1,22 @@
-# control_asistencia
+# Control de Asistencia Móvil (GPS + Reconocimiento Facial)
 
-A new Flutter project.
+Aplicación desarrollada en Flutter para el registro de asistencia laboral.
 
-## Getting Started
+## 📱 Características principales
+- Inicio de sesión con correo institucional (Firebase Auth).
+- Validación de geolocalización (perímetro de 300 metros).
+- Captura de selfie como evidencia fotográfica.
+- Registro de Entrada y Salida.
+- Subida de imágenes a Firebase Storage.
+- Historial de asistencia con visualización de evidencias.
 
-This project is a starting point for a Flutter application.
+## 🛠️ Tecnologías
+- Flutter / Dart
+- Firebase (Auth, Firestore, Storage)
+- Geolocator, Camera
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 🚀 Instalación
+1. Clonar el repositorio.
+2. Ejecutar `flutter pub get`.
+3. Agregar el archivo `google-services.json` en `android/app/`.
+4. Ejecutar en un dispositivo Android.
