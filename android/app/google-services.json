@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "810181325686",
+    "project_id": "control-asistencia-d468b",
+    "storage_bucket": "control-asistencia-d468b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:810181325686:android:305ea81a6ca621d0c20057",
+        "android_client_info": {
+          "package_name": "pe.edu.unh.control_asistencia"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBChTLCkmocPutwzQ8dUZVoiE8JGAMdG10"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
