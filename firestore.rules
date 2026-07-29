@@ -61,7 +61,74 @@ service cloud.firestore {
         data.employeeCode.size() <= 30 &&
         data.role in ['admin', 'employee'] &&
         data.status in ['active', 'inactive', 'pending'] &&
-        (data.officeId == null || data.officeId is string) &&
+        (
+          data.officeId == null ||
+          (
+            data.officeId is string &&
+            data.officeId.size() >= 3 &&
+            data.officeId.size() <= 50
+          )
+        ) &&
+        (
+          data.role == 'admin' ||
+          data.status != 'active' ||
+          data.officeId is string
+        ) &&
+        data.schemaVersion is int &&
+        data.schemaVersion == 1 &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function canReadOffice(officeId) {
+      return isActiveAdmin() ||
+        (
+          hasProfile() &&
+          currentUser().status == 'active' &&
+          currentUser().officeId == officeId
+        );
+    }
+
+    function validOfficeData(data) {
+      return data.keys().hasAll([
+          'name',
+          'address',
+          'location',
+          'radiusMeters',
+          'maxAccuracyMeters',
+          'timezone',
+          'active',
+          'schemaVersion',
+          'createdAt',
+          'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'name',
+          'address',
+          'location',
+          'radiusMeters',
+          'maxAccuracyMeters',
+          'timezone',
+          'active',
+          'schemaVersion',
+          'createdAt',
+          'updatedAt'
+        ]) &&
+        data.name is string &&
+        data.name.size() >= 3 &&
+        data.name.size() <= 100 &&
+        data.address is string &&
+        data.address.size() >= 5 &&
+        data.address.size() <= 200 &&
+        data.location is latlng &&
+        data.radiusMeters is number &&
+        data.radiusMeters >= 20 &&
+        data.radiusMeters <= 500 &&
+        data.maxAccuracyMeters is number &&
+        data.maxAccuracyMeters >= 5 &&
+        data.maxAccuracyMeters <= 100 &&
+        data.timezone == 'America/Lima' &&
+        data.active is bool &&
         data.schemaVersion is int &&
         data.schemaVersion == 1 &&
         data.createdAt is timestamp &&
@@ -69,20 +136,16 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      // Cada trabajador puede consultar únicamente su propio perfil.
-      // Un administrador activo puede consultar todos los perfiles.
       allow get: if isSignedIn() &&
         (request.auth.uid == userId || isActiveAdmin());
 
       allow list: if isActiveAdmin();
 
-      // Solo un administrador activo puede registrar trabajadores.
       allow create: if isActiveAdmin() &&
         validUserData(userId, request.resource.data) &&
         request.resource.data.createdAt == request.time &&
         request.resource.data.updatedAt == request.time;
 
-      // UID, correo y fecha de creación permanecen inmutables.
       allow update: if isActiveAdmin() &&
         validUserData(userId, request.resource.data) &&
         request.resource.data.diff(resource.data).affectedKeys().hasOnly([
@@ -102,11 +165,35 @@ service cloud.firestore {
           )
         );
 
-      // Los perfiles se desactivan; no se eliminan.
       allow delete: if false;
     }
 
-    // Todo módulo no definido permanece bloqueado.
+    match /offices/{officeId} {
+      allow get: if canReadOffice(officeId);
+      allow list: if isActiveAdmin();
+
+      allow create: if isActiveAdmin() &&
+        validOfficeData(request.resource.data) &&
+        request.resource.data.createdAt == request.time &&
+        request.resource.data.updatedAt == request.time;
+
+      allow update: if isActiveAdmin() &&
+        validOfficeData(request.resource.data) &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'name',
+          'address',
+          'location',
+          'radiusMeters',
+          'maxAccuracyMeters',
+          'timezone',
+          'active',
+          'updatedAt'
+        ]) &&
+        request.resource.data.updatedAt == request.time;
+
+      allow delete: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
