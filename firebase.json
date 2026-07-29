@@ -1,1 +1,27 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"control-asistencia-d468b","appId":"1:810181325686:android:305ea81a6ca621d0c20057","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"control-asistencia-d468b","configurations":{"android":"1:810181325686:android:305ea81a6ca621d0c20057"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "control-asistencia-d468b",
+          "appId": "1:810181325686:android:305ea81a6ca621d0c20057",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "control-asistencia-d468b",
+          "configurations": {
+            "android": "1:810181325686:android:305ea81a6ca621d0c20057"
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "database": "(default)",
+    "location": "southamerica-west1",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}
