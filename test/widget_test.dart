@@ -1,5 +1,7 @@
 import 'package:control_asistencia/app/app.dart';
 import 'package:control_asistencia/features/auth/domain/auth_repository.dart';
+import 'package:control_asistencia/features/users/domain/user_profile.dart';
+import 'package:control_asistencia/features/users/domain/user_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -17,12 +19,22 @@ class FakeAuthRepository implements AuthRepository {
   Future<void> signOut() async {}
 }
 
+class FakeUserRepository implements UserRepository {
+  @override
+  Stream<UserProfile?> watchProfile({required String uid}) {
+    return Stream<UserProfile?>.value(null);
+  }
+}
+
 void main() {
   testWidgets('muestra el formulario cuando no existe una sesión', (
     tester,
   ) async {
     await tester.pumpWidget(
-      AttendanceApp(authRepository: FakeAuthRepository()),
+      AttendanceApp(
+        authRepository: FakeAuthRepository(),
+        userRepository: FakeUserRepository(),
+      ),
     );
     await tester.pumpAndSettle();
 

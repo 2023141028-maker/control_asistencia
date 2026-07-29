@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'app/app.dart';
 import 'features/auth/data/firebase_auth_repository.dart';
+import 'features/users/data/firestore_user_repository.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -10,5 +11,10 @@ Future<void> main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  runApp(AttendanceApp(authRepository: FirebaseAuthRepository()));
+  runApp(
+    AttendanceApp(
+      authRepository: FirebaseAuthRepository(),
+      userRepository: FirestoreUserRepository(),
+    ),
+  );
 }

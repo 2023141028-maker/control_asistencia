@@ -1,14 +1,20 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../../home/presentation/home_screen.dart';
+import '../../users/domain/user_repository.dart';
+import '../../users/presentation/profile_gate.dart';
 import '../domain/auth_repository.dart';
 import 'login_screen.dart';
 
 class AuthGate extends StatelessWidget {
-  const AuthGate({required this.authRepository, super.key});
+  const AuthGate({
+    required this.authRepository,
+    required this.userRepository,
+    super.key,
+  });
 
   final AuthRepository authRepository;
+  final UserRepository userRepository;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +39,11 @@ class AuthGate extends StatelessWidget {
           return LoginScreen(authRepository: authRepository);
         }
 
-        return HomeScreen(user: user, authRepository: authRepository);
+        return ProfileGate(
+          user: user,
+          authRepository: authRepository,
+          userRepository: userRepository,
+        );
       },
     );
   }
