@@ -275,6 +275,16 @@ service cloud.firestore {
         );
     }
 
+    function isOwnAttendanceId(attendanceId) {
+      return isActiveUser() &&
+        attendanceId.size() == request.auth.uid.size() + 11 &&
+        attendanceId[0:request.auth.uid.size() + 1] ==
+          request.auth.uid + '_' &&
+        attendanceId[
+          request.auth.uid.size() + 1:attendanceId.size()
+        ].matches('[0-9]{4}-[0-9]{2}-[0-9]{2}');
+    }
+
     match /users/{userId} {
       allow get: if isSignedIn() &&
         (request.auth.uid == userId || isActiveAdmin());
@@ -335,7 +345,10 @@ service cloud.firestore {
     }
 
     match /attendances/{attendanceId} {
-      allow get: if canReadAttendance(resource.data);
+      // Autoriza el documento diario propio aunque todavía no exista.
+      // La autorización usa el UID incluido en el ID, no resource.data.
+      allow get: if isActiveAdmin() ||
+        isOwnAttendanceId(attendanceId);
 
       allow list: if
         request.query.limit != null &&

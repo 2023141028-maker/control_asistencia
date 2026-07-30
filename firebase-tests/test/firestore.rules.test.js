@@ -428,7 +428,7 @@ describe("Reglas de seguridad de asistencias", function () {
     );
   });
 
-  it("20 rechaza historial sin límite", async () => {
+    it("20 rechaza historial sin límite", async () => {
     const database = authenticatedDb(USER_ID);
 
     await createValidEntry();
@@ -440,6 +440,22 @@ describe("Reglas de seguridad de asistencias", function () {
 
     await assertFails(
       getDocs(unlimitedQuery),
+    );
+  });
+
+  it("21 permite consultar el documento diario propio aunque no exista", async () => {
+    const database = authenticatedDb(USER_ID);
+
+    await assertSucceeds(
+      getDoc(attendanceRef(database)),
+    );
+  });
+
+  it("22 impide consultar un documento diario inexistente ajeno", async () => {
+    const database = authenticatedDb(OTHER_USER_ID);
+
+    await assertFails(
+      getDoc(attendanceRef(database)),
     );
   });
 });

@@ -1,7 +1,11 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../../attendance/application/attendance_registration_service.dart';
+import '../../attendance/data/firestore_attendance_repository.dart';
+import '../../attendance/domain/attendance_repository.dart';
 import '../../auth/domain/auth_repository.dart';
+import '../../evidence/data/firebase_evidence_repository.dart';
+import '../../evidence/data/image_picker_evidence_camera.dart';
 import '../../home/presentation/home_screen.dart';
 import '../../location/data/geolocator_location_service.dart';
 import '../../location/domain/geofence_validator.dart';
@@ -31,15 +35,30 @@ class OfficeGate extends StatefulWidget {
 class _OfficeGateState extends State<OfficeGate> {
   late Stream<Office?> _officeStream;
 
-  final LocationService _locationService = GeolocatorLocationService();
-
-  final GeofenceValidator _geofenceValidator = const GeofenceValidator(
-    allowMockedLocations: kDebugMode,
-  );
+  late final LocationService _locationService;
+  late final GeofenceValidator _geofenceValidator;
+  late final AttendanceRepository _attendanceRepository;
+  late final AttendanceRegistrationService _registrationService;
 
   @override
   void initState() {
     super.initState();
+
+    _locationService = GeolocatorLocationService();
+    _geofenceValidator = const GeofenceValidator();
+
+    _attendanceRepository = FirestoreAttendanceRepository(
+      geofenceValidator: _geofenceValidator,
+    );
+
+    _registrationService = AttendanceRegistrationService(
+      attendanceRepository: _attendanceRepository,
+      evidenceRepository: FirebaseEvidenceRepository(),
+      evidenceCamera: ImagePickerEvidenceCamera(),
+      locationService: _locationService,
+      geofenceValidator: _geofenceValidator,
+    );
+
     _officeStream = _watchOffice();
   }
 
@@ -72,6 +91,12 @@ class _OfficeGateState extends State<OfficeGate> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(error.message)));
+    } catch (_) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No se pudo cerrar la sesión.')),
+      );
     }
   }
 
@@ -88,6 +113,7 @@ class _OfficeGateState extends State<OfficeGate> {
 
         if (snapshot.hasError) {
           final error = snapshot.error;
+
           final message = error is OfficeFailure
               ? error.message
               : 'No se pudo cargar la sede.';
@@ -108,7 +134,8 @@ class _OfficeGateState extends State<OfficeGate> {
             icon: Icons.business_outlined,
             title: 'Sede no encontrada',
             message:
-                'La sede asignada no existe. Comunícate con el administrador.',
+                'La sede asignada no existe. '
+                'Comunícate con el administrador.',
             onSignOut: _signOut,
           );
         }
@@ -128,6 +155,8 @@ class _OfficeGateState extends State<OfficeGate> {
           authRepository: widget.authRepository,
           locationService: _locationService,
           geofenceValidator: _geofenceValidator,
+          attendanceRepository: _attendanceRepository,
+          registrationService: _registrationService,
         );
       },
     );

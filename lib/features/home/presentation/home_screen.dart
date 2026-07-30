@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../attendance/application/attendance_registration_service.dart';
+import '../../attendance/domain/attendance_repository.dart';
+import '../../attendance/presentation/attendance_registration_card.dart';
 import '../../auth/domain/auth_repository.dart';
 import '../../location/domain/geofence_validator.dart';
 import '../../location/domain/location_service.dart';
@@ -14,6 +17,8 @@ class HomeScreen extends StatelessWidget {
     required this.authRepository,
     required this.locationService,
     required this.geofenceValidator,
+    required this.attendanceRepository,
+    required this.registrationService,
     super.key,
   });
 
@@ -22,6 +27,8 @@ class HomeScreen extends StatelessWidget {
   final AuthRepository authRepository;
   final LocationService locationService;
   final GeofenceValidator geofenceValidator;
+  final AttendanceRepository attendanceRepository;
+  final AttendanceRegistrationService registrationService;
 
   Future<void> _signOut(BuildContext context) async {
     try {
@@ -164,7 +171,8 @@ class HomeScreen extends StatelessWidget {
                       icon: Icons.gps_fixed,
                       label: 'Precisión máxima',
                       value:
-                          '${office.maxAccuracyMeters.toStringAsFixed(0)} metros',
+                          '${office.maxAccuracyMeters.toStringAsFixed(0)} '
+                          'metros',
                     ),
                   ],
                 ),
@@ -176,14 +184,21 @@ class HomeScreen extends StatelessWidget {
               locationService: locationService,
               geofenceValidator: geofenceValidator,
             ),
+            const SizedBox(height: 24),
+            AttendanceRegistrationCard(
+              userId: profile.uid,
+              office: office,
+              attendanceRepository: attendanceRepository,
+              registrationService: registrationService,
+            ),
             const SizedBox(height: 20),
             Card(
               child: ListTile(
                 leading: Icon(Icons.security, color: colors.primary),
                 title: const Text('Acceso verificado'),
                 subtitle: const Text(
-                  'Firebase Authentication, el perfil y la sede de Firestore '
-                  'fueron validados correctamente.',
+                  'Authentication, Firestore, GPS y evidencia fotográfica '
+                  'están protegidos mediante validaciones y reglas.',
                 ),
               ),
             ),
