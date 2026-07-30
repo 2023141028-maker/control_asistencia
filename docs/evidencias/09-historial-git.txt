@@ -1,4 +1,4 @@
-﻿* 49b2587 (HEAD -> main, origin/main, origin/HEAD) docs: corregir listas numeradas
+* 49b2587 (HEAD -> main, origin/main, origin/HEAD) docs: corregir listas numeradas
 * 6944a5c docs: normalizar formato Markdown
 * dbad33a feat(attendance): agregar historial de asistencias
 * e58dd51 docs: documentar arquitectura datos y pruebas del MVP
@@ -17,7 +17,7 @@
 * f9953d7 feat(users): integrar perfiles y control de acceso
 * 99d9bcc feat(users): definir modelo y reglas de perfiles
 * 94511ee chore(firestore): configurar Cloud Firestore seguro
-* 86cf54a feat(auth): implementar inicio de sesi├│n seguro
+* 86cf54a feat(auth): implementar inicio de sesión seguro
 * 5efd393 chore(auth): agregar Firebase Authentication
 * e0a03b1 chore(firebase): configurar Firebase Core para Android
 * 23c80ec chore: inicializar proyecto Flutter limpio

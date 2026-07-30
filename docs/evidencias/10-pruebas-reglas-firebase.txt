@@ -1,8 +1,8 @@
-[36m[1mi  emulators:[22m[39m Starting emulators: firestore, storage
-[36m[1mi  firestore:[22m[39m Firestore Emulator logging to [1mfirestore-debug.log[22m
-[32m[1m+  firestore:[22m[39m Firestore Emulator was started in standard edition.
-[32m[1m+  firestore:[22m[39m Firestore Emulator UI websocket is running on 9150.
-[36m[1mi [22m[39m Running script: [1mnpm --prefix firebase-tests test[22m
+i  emulators: Starting emulators: firestore, storage
+i  firestore: Firestore Emulator logging to firestore-debug.log
++  firestore: Firestore Emulator was started in standard edition.
++  firestore: Firestore Emulator UI websocket is running on 9150.
+i  Running script: npm --prefix firebase-tests test
 
 > firebase-tests@1.0.0 test
 > mocha --timeout 30000 test/**/*.test.js
@@ -16,7 +16,7 @@ false for 'create' @ L359, false for 'create' @ L413, false for 'update' @ L381,
 [2026-07-30T23:35:36.700Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x7950f522 error. Code: 7 Message: 7 PERMISSION_DENIED: 
 evaluation error at L359:9 for 'create' @ L359, false for 'create' @ L413, evaluation error at L381:9 for 'update' @ L381, false for 'update' @ L413, false for 'create' @ L359, false for 'create' @ L413
     [OK] 02 rechaza trabajador inactivo (376ms)
-    [OK] 03 permite entrada v├ílida (179ms)
+    [OK] 03 permite entrada válida (179ms)
 [2026-07-30T23:35:37.205Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x7950f526 error. Code: 7 Message: 7 PERMISSION_DENIED: 
 evaluation error at L359:9 for 'create' @ L359, false for 'create' @ L413, evaluation error at L381:9 for 'update' @ L381, false for 'update' @ L413, false for 'create' @ L359, false for 'create' @ L413
     [OK] 04 rechaza sede no asignada (108ms)
@@ -25,7 +25,7 @@ evaluation error at L359:9 for 'create' @ L359, false for 'create' @ L413, evalu
     [OK] 05 rechaza GPS simulado (165ms)
 [2026-07-30T23:35:37.881Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x7950f52a error. Code: 7 Message: 7 PERMISSION_DENIED: 
 evaluation error at L359:9 for 'create' @ L359, false for 'create' @ L413, evaluation error at L381:9 for 'update' @ L381, false for 'update' @ L413, false for 'create' @ L359, false for 'create' @ L413
-    [OK] 06 rechaza precisi├│n insuficiente (260ms)
+    [OK] 06 rechaza precisión insuficiente (260ms)
 [2026-07-30T23:35:38.205Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x7950f52c error. Code: 7 Message: 7 PERMISSION_DENIED: 
 evaluation error at L359:9 for 'create' @ L359, false for 'create' @ L413, evaluation error at L381:9 for 'update' @ L381, false for 'update' @ L413, false for 'create' @ L359, false for 'create' @ L413
     [OK] 07 rechaza coordenadas lejanas con distancia declarada cero (198ms)
@@ -41,7 +41,7 @@ evaluation error at L359:9 for 'create' @ L359, false for 'create' @ L413, evalu
 [2026-07-30T23:35:39.133Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x7950f534 error. Code: 7 Message: 7 PERMISSION_DENIED: 
 evaluation error at L359:9 for 'create' @ L359, false for 'create' @ L413, evaluation error at L381:9 for 'update' @ L381, false for 'update' @ L413, false for 'create' @ L359, false for 'create' @ L413
     [OK] 11 rechaza salida sin entrada previa (98ms)
-    [OK] 12 permite una salida v├ílida (251ms)
+    [OK] 12 permite una salida válida (251ms)
 [2026-07-30T23:35:39.888Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x7950f53a error. Code: 7 Message: 7 PERMISSION_DENIED: 
 evaluation error at L381:9 for 'update' @ L381, false for 'update' @ L413, false for 'update' @ L381, false for 'update' @ L413
     [OK] 13 impide modificar la entrada al registrar salida (296ms)
@@ -54,22 +54,22 @@ false for 'delete' @ L409, false for 'delete' @ L413
     [OK] 16 permite al propietario leer su asistencia (560ms)
     [OK] 17 impide que otro trabajador lea la asistencia (455ms)
     [OK] 18 permite lectura al administrador activo (245ms)
-    [OK] 19 permite historial propio con filtro y l├¡mite (668ms)
-    [OK] 20 rechaza historial sin l├¡mite (242ms)
+    [OK] 19 permite historial propio con filtro y límite (668ms)
+    [OK] 20 rechaza historial sin límite (242ms)
     [OK] 21 permite consultar el documento diario propio aunque no exista (163ms)
     [OK] 22 impide consultar un documento diario inexistente ajeno (107ms)
 
-  Reglas de seguridad de evidencias fotogr├íficas
-    [OK] 01 rechaza carga sin autenticaci├│n (1515ms)
+  Reglas de seguridad de evidencias fotográficas
+    [OK] 01 rechaza carga sin autenticación (1515ms)
     [OK] 02 rechaza trabajador inactivo (515ms)
-    [OK] 03 permite JPEG v├ílido del propietario (225ms)
+    [OK] 03 permite JPEG válido del propietario (225ms)
     [OK] 04 rechaza carga en una ruta ajena
     [OK] 05 rechaza contenido que no sea JPEG (81ms)
     [OK] 06 rechaza evidencia mayor de 2 MB (252ms)
-    [OK] 07 rechaza evidencia vac├¡a (114ms)
+    [OK] 07 rechaza evidencia vacía (114ms)
     [OK] 08 rechaza sede incorrecta (134ms)
     [OK] 09 rechaza nombre no autorizado (111ms)
-    [OK] 10 impide sobrescribir una fotograf├¡a (186ms)
+    [OK] 10 impide sobrescribir una fotografía (186ms)
     [OK] 11 permite lectura al propietario (180ms)
     [OK] 12 impide lectura a otro trabajador (182ms)
     [OK] 13 permite lectura al administrador (184ms)
@@ -84,11 +84,11 @@ false for 'delete' @ L409, false for 'delete' @ L413
 
   42 passing (28s)
 
-[32m[1m+ [22m[39m Script exited successfully (code 0)
-[36m[1mi  emulators:[22m[39m Shutting down emulators.
-[36m[1mi  firestore:[22m[39m Stopping Firestore Emulator
-[33m[1m! [22m[39m Firestore Emulator has exited upon receiving signal: SIGINT
-[36m[1mi  storage:[22m[39m Stopping Storage Emulator
-[36m[1mi  hub:[22m[39m Stopping emulator hub
-[36m[1mi  logging:[22m[39m Stopping Logging Emulator
++  Script exited successfully (code 0)
+i  emulators: Shutting down emulators.
+i  firestore: Stopping Firestore Emulator
+!  Firestore Emulator has exited upon receiving signal: SIGINT
+i  storage: Stopping Storage Emulator
+i  hub: Stopping emulator hub
+i  logging: Stopping Logging Emulator
 ExitCode: 0
