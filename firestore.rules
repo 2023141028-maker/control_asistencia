@@ -243,6 +243,17 @@ service cloud.firestore {
         mark.distanceMeters is number &&
         mark.distanceMeters >= 0 &&
         mark.distanceMeters <= officeData.radiusMeters &&
+
+        // Firestore calcula la distancia real entre el GPS y la sede.
+        mark.location.distance(officeData.location) <=
+          officeData.radiusMeters &&
+
+        // El valor calculado por Flutter debe coincidir, con 2 m de tolerancia.
+        math.abs(
+          mark.distanceMeters -
+          mark.location.distance(officeData.location)
+        ) <= 2 &&
+
         mark.isMocked is bool &&
         mark.isMocked == false &&
         mark.evidencePath is string &&
