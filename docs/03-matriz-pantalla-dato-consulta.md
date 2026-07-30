@@ -27,15 +27,15 @@ flowchart TD
 
 No se permite llegar directamente a `HomeScreen`. Antes deben validarse:
 
-1\. Sesión.
+1. Sesión.
 
-2\. Perfil.
+2. Perfil.
 
-3\. Estado del perfil.
+3. Estado del perfil.
 
-4\. Sede asignada.
+4. Sede asignada.
 
-5\. Existencia y estado de la sede.
+5. Existencia y estado de la sede.
 
 ## 3. Matriz principal
 
@@ -381,21 +381,21 @@ Si Firestore falla después de subir la fotografía, el servicio intenta elimina
 
 ### Operaciones
 
-1\. Consultar el documento diario.
+1. Consultar el documento diario.
 
-2\. Confirmar que no existe.
+2. Confirmar que no existe.
 
-3\. Capturar fotografía.
+3. Capturar fotografía.
 
-4\. Obtener ubicación.
+4. Obtener ubicación.
 
-5\. Validar geocerca.
+5. Validar geocerca.
 
-6\. Crear evidencia `check-in.jpg`.
+6. Crear evidencia `check-in.jpg`.
 
-7\. Crear el documento mediante transacción.
+7. Crear el documento mediante transacción.
 
-8\. Leer el resultado desde el servidor.
+8. Leer el resultado desde el servidor.
 
 ### Escritura Firestore
 
@@ -422,23 +422,23 @@ duplicateCheckIn
 
 ### Operaciones
 
-1\. Consultar el documento diario.
+1. Consultar el documento diario.
 
-2\. Confirmar que existe una entrada.
+2. Confirmar que existe una entrada.
 
-3\. Confirmar que no existe salida.
+3. Confirmar que no existe salida.
 
-4\. Capturar una fotografía nueva.
+4. Capturar una fotografía nueva.
 
-5\. Obtener una ubicación nueva.
+5. Obtener una ubicación nueva.
 
-6\. Validar geocerca.
+6. Validar geocerca.
 
-7\. Crear evidencia `check-out.jpg`.
+7. Crear evidencia `check-out.jpg`.
 
-8\. Actualizar el documento mediante transacción.
+8. Actualizar el documento mediante transacción.
 
-9\. Leer el resultado desde el servidor.
+9. Leer el resultado desde el servidor.
 
 ### Actualización Firestore
 

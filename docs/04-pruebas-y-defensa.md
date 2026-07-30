@@ -165,12 +165,12 @@ La ausencia de eliminación es una regla del negocio y no una implementación in
 La entrada utiliza una transacción:
 
 ```text
-1\. Leer attendances/{uid}_{fecha}.
-2\. Rechazar si ya existe.
-3\. Crear el documento con status = checked-in.
-4\. Establecer checkOut = null.
-5\. Usar timestamps del servidor.
-6\. Confirmar la transacción.
+1. Leer attendances/{uid}_{fecha}.
+2. Rechazar si ya existe.
+3. Crear el documento con status = checked-in.
+4. Establecer checkOut = null.
+5. Usar timestamps del servidor.
+6. Confirmar la transacción.
 ```
 
 Pseudocódigo:
@@ -189,14 +189,14 @@ La existencia del documento y la creación se evalúan como una operación atóm
 ## 5. Registro transaccional de salida
 
 ```text
-1\. Leer attendances/{uid}_{fecha}.
-2\. Rechazar si no existe.
-3\. Rechazar si checkOut ya existe.
-4\. Verificar status = checked-in.
-5\. Mantener inmutable la entrada.
-6\. Actualizar status = completed.
-7\. Añadir checkOut.
-8\. Actualizar updatedAt con hora del servidor.
+1. Leer attendances/{uid}_{fecha}.
+2. Rechazar si no existe.
+3. Rechazar si checkOut ya existe.
+4. Verificar status = checked-in.
+5. Mantener inmutable la entrada.
+6. Actualizar status = completed.
+7. Añadir checkOut.
+8. Actualizar updatedAt con hora del servidor.
 ```
 
 Pseudocódigo:
@@ -405,49 +405,49 @@ Resultado:
 
 Casos:
 
-1\. Rechaza usuario no autenticado.
+1. Rechaza usuario no autenticado.
 
-2\. Rechaza trabajador inactivo.
+2. Rechaza trabajador inactivo.
 
-3\. Permite entrada válida.
+3. Permite entrada válida.
 
-4\. Rechaza sede no asignada.
+4. Rechaza sede no asignada.
 
-5\. Rechaza GPS simulado.
+5. Rechaza GPS simulado.
 
-6\. Rechaza precisión insuficiente.
+6. Rechaza precisión insuficiente.
 
-7\. Rechaza coordenadas lejanas con distancia declarada cero.
+7. Rechaza coordenadas lejanas con distancia declarada cero.
 
-8\. Rechaza distancia que no coincide con las coordenadas.
+8. Rechaza distancia que no coincide con las coordenadas.
 
-9\. Rechaza ruta de evidencia incorrecta.
+9. Rechaza ruta de evidencia incorrecta.
 
-10\. Rechaza entrada duplicada.
+10. Rechaza entrada duplicada.
 
-11\. Rechaza salida sin entrada previa.
+11. Rechaza salida sin entrada previa.
 
-12\. Permite salida válida.
+12. Permite salida válida.
 
-13\. Impide modificar la entrada al registrar salida.
+13. Impide modificar la entrada al registrar salida.
 
-14\. Rechaza una segunda salida.
+14. Rechaza una segunda salida.
 
-15\. Impide eliminar una asistencia.
+15. Impide eliminar una asistencia.
 
-16\. Permite al propietario leer su asistencia.
+16. Permite al propietario leer su asistencia.
 
-17\. Impide que otro trabajador lea la asistencia.
+17. Impide que otro trabajador lea la asistencia.
 
-18\. Permite lectura al administrador activo.
+18. Permite lectura al administrador activo.
 
-19\. Permite historial propio con filtro y límite.
+19. Permite historial propio con filtro y límite.
 
-20\. Rechaza historial sin límite.
+20. Rechaza historial sin límite.
 
-21\. Permite consultar el documento diario propio aunque no exista.
+21. Permite consultar el documento diario propio aunque no exista.
 
-22\. Impide consultar un documento inexistente ajeno.
+22. Impide consultar un documento inexistente ajeno.
 
 ## 12. Pruebas de reglas Storage
 
@@ -459,45 +459,45 @@ Resultado:
 
 Casos:
 
-1\. Rechaza carga sin autenticación.
+1. Rechaza carga sin autenticación.
 
-2\. Rechaza trabajador inactivo.
+2. Rechaza trabajador inactivo.
 
-3\. Permite JPEG válido del propietario.
+3. Permite JPEG válido del propietario.
 
-4\. Rechaza carga en ruta ajena.
+4. Rechaza carga en ruta ajena.
 
-5\. Rechaza contenido diferente de JPEG.
+5. Rechaza contenido diferente de JPEG.
 
-6\. Rechaza evidencia mayor de 2 MB.
+6. Rechaza evidencia mayor de 2 MB.
 
-7\. Rechaza evidencia vacía.
+7. Rechaza evidencia vacía.
 
-8\. Rechaza sede incorrecta.
+8. Rechaza sede incorrecta.
 
-9\. Rechaza nombre no autorizado.
+9. Rechaza nombre no autorizado.
 
-10\. Impide sobrescribir una fotografía.
+10. Impide sobrescribir una fotografía.
 
-11\. Permite lectura al propietario.
+11. Permite lectura al propietario.
 
-12\. Impide lectura a otro trabajador.
+12. Impide lectura a otro trabajador.
 
-13\. Permite lectura al administrador.
+13. Permite lectura al administrador.
 
-14\. Impide modificar metadatos.
+14. Impide modificar metadatos.
 
-15\. Permite limpiar entrada no confirmada.
+15. Permite limpiar entrada no confirmada.
 
-16\. Impide eliminar entrada confirmada.
+16. Impide eliminar entrada confirmada.
 
-17\. Rechaza salida sin entrada abierta.
+17. Rechaza salida sin entrada abierta.
 
-18\. Permite salida con entrada abierta.
+18. Permite salida con entrada abierta.
 
-19\. Permite limpiar salida no confirmada.
+19. Permite limpiar salida no confirmada.
 
-20\. Impide eliminar salida confirmada.
+20. Impide eliminar salida confirmada.
 
 ## 13. Resultado total de reglas
 
@@ -559,33 +559,33 @@ Entorno:
 
 ### Procedimiento
 
-1\. Iniciar los emuladores.
+1. Iniciar los emuladores.
 
-2\. Ejecutar el script `seed-demo.js`.
+2. Ejecutar el script `seed-demo.js`.
 
-3\. Iniciar la aplicación con `USE_FIREBASE_EMULATORS=true`.
+3. Iniciar la aplicación con `USE_FIREBASE_EMULATORS=true`.
 
-4\. Iniciar sesión con el usuario local.
+4. Iniciar sesión con el usuario local.
 
-5\. Comprobar perfil y sede.
+5. Comprobar perfil y sede.
 
-6\. Simular las coordenadas de UNH Pampas.
+6. Simular las coordenadas de UNH Pampas.
 
-7\. Validar ubicación.
+7. Validar ubicación.
 
-8\. Registrar entrada.
+8. Registrar entrada.
 
-9\. Confirmar documento en Firestore.
+9. Confirmar documento en Firestore.
 
-10\. Confirmar `check-in.jpg` en Storage.
+10. Confirmar `check-in.jpg` en Storage.
 
-11\. Registrar salida.
+11. Registrar salida.
 
-12\. Confirmar `status: completed`.
+12. Confirmar `status: completed`.
 
-13\. Confirmar mapa `checkOut`.
+13. Confirmar mapa `checkOut`.
 
-14\. Confirmar `check-out.jpg`.
+14. Confirmar `check-out.jpg`.
 
 ### Resultado obtenido
 

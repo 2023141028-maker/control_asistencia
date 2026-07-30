@@ -63,23 +63,23 @@ La interfaz administrativa completa queda fuera del alcance del MVP móvil, pero
 
 Implementar un sistema móvil capaz de registrar una jornada diaria por trabajador, validando:
 
-1\. Identidad autenticada.
+1. Identidad autenticada.
 
-2\. Perfil autorizado y activo.
+2. Perfil autorizado y activo.
 
-3\. Sede asignada y activa.
+3. Sede asignada y activa.
 
-4\. Ubicación GPS precisa.
+4. Ubicación GPS precisa.
 
-5\. Permanencia dentro del radio permitido.
+5. Permanencia dentro del radio permitido.
 
-6\. Ausencia de ubicación simulada.
+6. Ausencia de ubicación simulada.
 
-7\. Evidencia fotográfica válida.
+7. Evidencia fotográfica válida.
 
-8\. Entrada o salida coherente con el estado de la jornada.
+8. Entrada o salida coherente con el estado de la jornada.
 
-9\. Fecha y hora controladas por Firebase.
+9. Fecha y hora controladas por Firebase.
 
 ## 4. Alcance funcional
 

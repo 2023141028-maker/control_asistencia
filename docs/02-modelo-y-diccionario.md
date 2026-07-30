@@ -317,9 +317,9 @@ Se utiliza la misma estructura para `checkIn` y `checkOut`.
 
 Se realizan dos comprobaciones:
 
-1\. Flutter calcula la distancia mediante Haversine.
+1. Flutter calcula la distancia mediante Haversine.
 
-2\. Firestore vuelve a calcular la distancia entre los dos `GeoPoint`.
+2. Firestore vuelve a calcular la distancia entre los dos `GeoPoint`.
 
 La distancia declarada por Flutter puede diferir como máximo 2 metros respecto al cálculo de las reglas.
 
