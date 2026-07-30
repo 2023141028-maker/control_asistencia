@@ -5,21 +5,13 @@
 Este documento presenta evidencia verificable de:
 
 - Consultas utilizadas por el MVP.
-
 - Operaciones de creación, lectura y actualización.
-
 - Prevención de duplicidad.
-
 - Transacciones.
-
 - Manejo de errores.
-
 - Consistencia entre Firestore y Storage.
-
 - Pruebas automatizadas.
-
 - Prueba manual de extremo a extremo.
-
 - Decisiones que deben explicarse durante la defensa.
 
 ## 2. Consultas del MVP
@@ -27,141 +19,95 @@ Este documento presenta evidencia verificable de:
 ### 2.1. Consulta de perfil
 
 ```text
-
 users/{uid}
-
 ```
 
 Implementación:
 
 ```text
-
 FirebaseFirestore.instance
-
-&#x20; .collection("users")
-
-&#x20; .doc(uid)
-
-&#x20; .snapshots()
-
+  .collection("users")
+  .doc(uid)
+  .snapshots()
 ```
 
 Características:
 
 - Lectura directa.
-
 - Actualización en tiempo real.
-
 - Solo el propietario o un administrador puede leer.
-
 - Devuelve `null` cuando el perfil no existe.
-
 - El repositorio valida campos, tipos, UID y versión.
 
 ### 2.2. Consulta de sede
 
 ```text
-
 offices/{officeId}
-
 ```
 
 Implementación:
 
 ```text
-
 FirebaseFirestore.instance
-
-&#x20; .collection("offices")
-
-&#x20; .doc(officeId)
-
-&#x20; .snapshots()
-
+  .collection("offices")
+  .doc(officeId)
+  .snapshots()
 ```
 
 Características:
 
 - Lectura directa.
-
 - El trabajador solo puede leer la sede asignada.
-
 - El administrador puede leer cualquier sede.
-
 - El repositorio valida ubicación, radio, precisión y zona horaria.
 
 ### 2.3. Consulta de jornada diaria
 
 ```text
-
 attendances/{uid}_{YYYY-MM-DD}
-
 ```
 
 Implementación:
 
 ```text
-
 attendanceRepository.getForDay(
-
-&#x20; userId: uid,
-
-&#x20; workDay: AttendanceDay
-
+  userId: uid,
+  workDay: AttendanceDay
 )
-
 ```
 
 Características:
 
 - No recorre la colección.
-
 - Utiliza un ID determinista.
-
 - Puede consultar el documento propio aunque todavía no exista.
-
 - Permite decidir si corresponde entrada, salida o jornada completada.
 
 ### 2.4. Consulta de historial
 
 ```text
-
 attendances
-
-&#x20; .where("userId", isEqualTo: uid)
-
-&#x20; .orderBy("workDate", descending: true)
-
-&#x20; .limit(30)
-
+  .where("userId", isEqualTo: uid)
+  .orderBy("workDate", descending: true)
+  .limit(30)
 ```
 
 Características:
 
 - Filtra por propietario.
-
 - Ordena desde la fecha más reciente.
-
 - Limita el consumo de lecturas.
-
 - El repositorio admite límites entre 1 y 50.
-
 - Las reglas rechazan consultas sin límite.
-
 - Requiere el índice `userId ASC, workDate DESC`.
 
 ### 2.5. Consulta administrativa prevista
 
 ```text
-
 attendances
-
-&#x20; .where("officeId", isEqualTo: officeId)
-
-&#x20; .where("workDate", isEqualTo: workDate)
-
-&#x20; .orderBy("createdAt", descending: true)
-
+  .where("officeId", isEqualTo: officeId)
+  .where("workDate", isEqualTo: workDate)
+  .orderBy("createdAt", descending: true)
 ```
 
 El índice está preparado en `firestore.indexes.json`. La pantalla administrativa no forma parte del MVP móvil actual.
@@ -171,17 +117,11 @@ El índice está preparado en `firestore.indexes.json`. La pantalla administrati
 ## 3.1. Usuarios
 
 | Operación | Disponibilidad | Responsable |
-
 |---|---|---|
-
 | Crear | Permitida | Administrador activo |
-
 | Leer uno | Permitida | Propietario o administrador |
-
 | Listar | Permitida | Administrador activo |
-
 | Actualizar | Permitida | Administrador activo |
-
 | Eliminar | Rechazada | Nadie |
 
 Los perfiles se desactivan cambiando `status`; no se eliminan para conservar trazabilidad.
@@ -189,17 +129,11 @@ Los perfiles se desactivan cambiando `status`; no se eliminan para conservar tra
 ## 3.2. Sedes
 
 | Operación | Disponibilidad | Responsable |
-
 |---|---|---|
-
 | Crear | Permitida | Administrador activo |
-
 | Leer una | Permitida | Usuario asignado o administrador |
-
 | Listar | Permitida | Administrador activo |
-
 | Actualizar | Permitida | Administrador activo |
-
 | Eliminar | Rechazada | Nadie |
 
 Una sede se retira de operación mediante `active: false`.
@@ -207,17 +141,11 @@ Una sede se retira de operación mediante `active: false`.
 ## 3.3. Asistencias
 
 | Operación | Disponibilidad | Uso |
-
 |---|---|---|
-
 | Crear | Permitida | Registrar entrada |
-
 | Leer una | Permitida | Consultar jornada |
-
 | Listar | Permitida con límite | Consultar historial |
-
 | Actualizar | Permitida | Registrar salida |
-
 | Eliminar | Rechazada | Proteger auditoría |
 
 La ausencia de eliminación es una regla del negocio y no una implementación incompleta.
@@ -225,17 +153,11 @@ La ausencia de eliminación es una regla del negocio y no una implementación in
 ## 3.4. Evidencias
 
 | Operación | Disponibilidad | Uso |
-
 |---|---|---|
-
 | Crear | Permitida | Entrada o salida válida |
-
 | Leer una | Permitida | Propietario o administrador |
-
 | Listar | Rechazada | Evitar enumeración de archivos |
-
 | Actualizar | Rechazada | Evidencia inmutable |
-
 | Eliminar | Condicionada | Compensar una marcación no confirmada |
 
 ## 4. Registro transaccional de entrada
@@ -243,37 +165,23 @@ La ausencia de eliminación es una regla del negocio y no una implementación in
 La entrada utiliza una transacción:
 
 ```text
-
 1\. Leer attendances/{uid}_{fecha}.
-
 2\. Rechazar si ya existe.
-
 3\. Crear el documento con status = checked-in.
-
 4\. Establecer checkOut = null.
-
 5\. Usar timestamps del servidor.
-
 6\. Confirmar la transacción.
-
 ```
 
 Pseudocódigo:
 
 ```text
-
 runTransaction {
-
-&#x20; snapshot = get(documentoDiario)
-
-&#x20; if snapshot.exists:
-
-&#x20;   throw duplicateCheckIn
-
-&#x20; set(documentoDiario, datosDeEntrada)
-
+  snapshot = get(documentoDiario)
+  if snapshot.exists:
+    throw duplicateCheckIn
+  set(documentoDiario, datosDeEntrada)
 }
-
 ```
 
 La existencia del documento y la creación se evalúan como una operación atómica.
@@ -281,53 +189,31 @@ La existencia del documento y la creación se evalúan como una operación atóm
 ## 5. Registro transaccional de salida
 
 ```text
-
 1\. Leer attendances/{uid}_{fecha}.
-
 2\. Rechazar si no existe.
-
 3\. Rechazar si checkOut ya existe.
-
 4\. Verificar status = checked-in.
-
 5\. Mantener inmutable la entrada.
-
 6\. Actualizar status = completed.
-
 7\. Añadir checkOut.
-
 8\. Actualizar updatedAt con hora del servidor.
-
 ```
 
 Pseudocódigo:
 
 ```text
-
 runTransaction {
-
-&#x20; snapshot = get(documentoDiario)
-
-&#x20; if !snapshot.exists:
-
-&#x20;   throw missingCheckIn
-
-&#x20; if snapshot.status == completed:
-
-&#x20;   throw alreadyCheckedOut
-
-&#x20; update(documentoDiario, {
-
-&#x20;   status: completed,
-
-&#x20;   checkOut: nuevaMarcacion,
-
-&#x20;   updatedAt: serverTimestamp
-
-&#x20; })
-
+  snapshot = get(documentoDiario)
+  if !snapshot.exists:
+    throw missingCheckIn
+  if snapshot.status == completed:
+    throw alreadyCheckedOut
+  update(documentoDiario, {
+    status: completed,
+    checkOut: nuevaMarcacion,
+    updatedAt: serverTimestamp
+  })
 }
-
 ```
 
 ## 6. Prevención de duplicidad
@@ -335,21 +221,13 @@ runTransaction {
 Se aplican varias barreras:
 
 | Barrera | Función |
-
 |---|---|
-
 | ID determinista | Una ruta por usuario y día |
-
 | Transacción | Lectura y escritura atómicas |
-
 | Validación del repositorio | Rechaza documento existente |
-
 | Reglas Firestore | Solo permite crear una entrada válida |
-
 | Estado de jornada | Impide una segunda salida |
-
 | Evidencia inmutable | Impide reemplazar fotografías |
-
 | Interfaz | Deshabilita el botón mientras registra |
 
 La duplicidad no depende únicamente de que el botón esté deshabilitado.
@@ -361,25 +239,17 @@ La marcación utiliza dos servicios diferentes y no existe una transacción dist
 Por eso se aplica una estrategia de compensación:
 
 ```mermaid
-
 flowchart TD
-
-&#x20;   A[Capturar foto] --> B[Subir a Storage]
-
-&#x20;   B --> C[Registrar en Firestore]
-
-&#x20;   C -->|Correcto| D[Confirmar jornada]
-
-&#x20;   C -->|Error| E[Eliminar foto provisional]
-
+    A[Capturar foto] --> B[Subir a Storage]
+    B --> C[Registrar en Firestore]
+    C -->|Correcto| D[Confirmar jornada]
+    C -->|Error| E[Eliminar foto provisional]
 ```
 
 Si Firestore falla:
 
 - La aplicación intenta eliminar la fotografía.
-
 - Storage permite eliminarla solamente mientras no esté confirmada.
-
 - Una evidencia vinculada a una asistencia confirmada no puede eliminarse.
 
 Esta estrategia evita, en la mayoría de casos controlados, archivos huérfanos.
@@ -389,65 +259,41 @@ Esta estrategia evita, en la mayoría de casos controlados, archivos huérfanos.
 ### 8.1. Authentication
 
 - Credenciales inválidas.
-
 - Cuenta deshabilitada.
-
 - Demasiados intentos.
-
 - Error de red.
-
 - Error desconocido.
 
 ### 8.2. Perfiles y sedes
 
 - Documento inexistente.
-
 - Permiso denegado.
-
 - Firestore no disponible.
-
 - Tipo de campo incorrecto.
-
 - Versión incompatible.
-
 - Perfil inactivo o pendiente.
-
 - Sede inexistente o inactiva.
 
 ### 8.3. Ubicación
 
 - GPS desactivado.
-
 - Permiso rechazado.
-
 - Permiso bloqueado permanentemente.
-
 - Ubicación precisa desactivada.
-
 - Tiempo de espera.
-
 - Precisión insuficiente.
-
 - Fuera del radio.
-
 - Ubicación simulada.
 
 ### 8.4. Evidencia
 
 - Cámara cancelada.
-
 - Archivo vacío.
-
 - Formato diferente de JPEG.
-
 - Tamaño mayor de 2 MB.
-
 - Ruta incorrecta.
-
 - Error de carga.
-
 - Permiso denegado.
-
 - Error de limpieza provisional.
 
 ### 8.5. Asistencia
@@ -455,23 +301,14 @@ Esta estrategia evita, en la mayoría de casos controlados, archivos huérfanos.
 Los códigos de dominio incluyen:
 
 ```text
-
 duplicateCheckIn
-
 missingCheckIn
-
 alreadyCheckedOut
-
 locationNotAllowed
-
 evidenceRequired
-
 permissionDenied
-
 unavailable
-
 invalidData
-
 ```
 
 Cada error se transforma en un mensaje comprensible para el usuario.
@@ -479,21 +316,13 @@ Cada error se transforma en un mensaje comprensible para el usuario.
 ## 9. Estrategia de pruebas
 
 | Nivel | Herramienta | Finalidad |
-
 |---|---|---|
-
 | Análisis estático | `flutter analyze` | Detectar problemas de tipos y estilo |
-
 | Pruebas unitarias | `flutter_test` | Validar dominio y casos de uso |
-
 | Pruebas de widgets | `flutter_test` | Validar estados visibles |
-
 | Repositorios | `fake_cloud_firestore` | Validar transacciones y lectura |
-
 | Reglas Firestore | Emulator Suite | Validar acceso e integridad |
-
 | Reglas Storage | Emulator Suite | Validar evidencias |
-
 | Prueba manual | Emulador Android | Validar flujo completo |
 
 ## 10. Pruebas Flutter
@@ -501,99 +330,64 @@ Cada error se transforma en un mensaje comprensible para el usuario.
 Resultado verificado:
 
 ```text
-
 34 pruebas aprobadas
-
 ```
 
 ### 10.1. Distribución
 
 | Archivo | Cantidad | Cobertura |
-
 |---|---:|---|
-
 | `test/widget_test.dart` | 1 | Formulario sin sesión |
-
 | `geofence_validator_test.dart` | 5 | Radio, precisión y GPS simulado |
-
 | `location_verification_card_test.dart` | 2 | Estados permitido y rechazado |
-
 | `attendance_day_test.dart` | 4 | Zona horaria, cambio de día e ID |
-
 | `firestore_attendance_repository_test.dart` | 4 | Entrada, salida y duplicidad |
-
 | `attendance_evidence_test.dart` | 7 | Ruta, JPEG, tamaño y UID |
-
 | `attendance_registration_service_test.dart` | 7 | Coordinación y compensación |
-
 | **Total** | **30** | |
 
 ### 10.2. Casos de geocerca
 
 - Acepta una ubicación precisa dentro de la sede.
-
 - Rechaza una ubicación fuera del radio.
-
 - Rechaza una precisión mayor de 30 metros.
-
 - Rechaza una ubicación simulada en producción.
-
 - Solo permite simulación cuando se configura explícitamente para desarrollo.
 
 ### 10.3. Fecha laboral
 
 - Antes de medianoche en Lima pertenece al día anterior correspondiente.
-
 - Exactamente a medianoche cambia la jornada.
-
 - Construye un ID determinista.
-
 - Rechaza fechas inexistentes.
 
 ### 10.4. Repositorio de asistencia
 
 - Registra entrada.
-
 - Rechaza entrada duplicada.
-
 - Rechaza salida sin entrada.
-
 - Completa la jornada.
-
 - Rechaza salida duplicada.
 
 ### 10.5. Evidencia
 
 - Construye ruta de entrada.
-
 - Construye ruta de salida.
-
 - Acepta JPEG válido.
-
 - Rechaza archivo vacío.
-
 - Rechaza formato incorrecto.
-
 - Rechaza archivo mayor de 2 MB.
-
 - Rechaza UID con `/`.
 
 ### 10.6. Servicio coordinador
 
 - Registra entrada.
-
 - Registra salida.
-
 - Cancela si el usuario cierra la cámara.
-
 - Rechaza GPS fuera del radio.
-
 - Elimina la foto si Firestore falla.
-
 - Impide registrar después de completar la jornada.
-
 - Reutiliza correctamente una fotografía recuperada.
-
 
 ### 10.7. Pantalla de historial
 
@@ -606,9 +400,7 @@ Resultado verificado:
 Resultado:
 
 ```text
-
 22 pruebas aprobadas
-
 ```
 
 Casos:
@@ -662,9 +454,7 @@ Casos:
 Resultado:
 
 ```text
-
 20 pruebas aprobadas
-
 ```
 
 Casos:
@@ -712,59 +502,40 @@ Casos:
 ## 13. Resultado total de reglas
 
 ```text
-
 22 pruebas Firestore
-
 20 pruebas Storage
-
 42 pruebas de reglas aprobadas
-
 ```
 
 Comando reproducible:
 
 ```powershell
-
 firebase emulators:exec `
-
-&#x20; --only "firestore,storage" `
-
-&#x20; "npm --prefix firebase-tests test" `
-
-&#x20; --project control-asistencia-d468b
-
+  --only "firestore,storage" `
+  "npm --prefix firebase-tests test" `
+  --project control-asistencia-d468b
 ```
 
 Resultado esperado:
 
 ```text
-
 42 passing
-
 Script exited successfully (code 0)
-
 ```
 
 ## 14. Validación de calidad Flutter
 
 ```powershell
-
 dart format lib test
-
 flutter analyze
-
 flutter test
-
 ```
 
 Resultados esperados:
 
 ```text
-
 No issues found!
-
 All tests passed!
-
 ```
 
 El mensaje aislado `Acceso denegado.` que aparece antes de algunos comandos corresponde al entorno local de PowerShell. El proceso Flutter finaliza correctamente con código de salida cero.
@@ -774,23 +545,16 @@ El mensaje aislado `Acceso denegado.` que aparece antes de algunos comandos corr
 Fecha de prueba:
 
 ```text
-
 30/07/2026
-
 ```
 
 Entorno:
 
 - Android Emulator.
-
 - Authentication Emulator.
-
 - Firestore Emulator.
-
 - Storage Emulator.
-
 - Sede UNH Pampas.
-
 - Ubicación simulada desde el emulador.
 
 ### Procedimiento
@@ -826,27 +590,16 @@ Entorno:
 ### Resultado obtenido
 
 - Inicio de sesión correcto.
-
 - Perfil activo cargado.
-
 - Sede UNH Pampas cargada.
-
 - Distancia aproximada: 0.1 metros.
-
 - Precisión aproximada: 5 metros.
-
 - Mensaje `UBICACIÓN PERMITIDA`.
-
 - Entrada almacenada con `status: checked-in`.
-
 - Evidencia `check-in.jpg` almacenada.
-
 - Salida registrada.
-
 - Jornada mostrada como completada.
-
 - Entrada y salida conservadas en un solo documento.
-
 - Evidencia `check-out.jpg` almacenada.
 
 ## 16. Evidencias que deben conservarse
@@ -854,35 +607,21 @@ Entorno:
 Las capturas deberán almacenarse posteriormente en:
 
 ```text
-
 docs/evidencias/
-
 ```
 
 | Archivo propuesto | Evidencia |
-
 |---|---|
-
 | `01-login.png` | Pantalla de inicio de sesión |
-
 | `02-perfil-sede.png` | Perfil y sede autorizados |
-
 | `03-ubicacion-permitida.png` | Distancia y precisión |
-
 | `04-entrada-registrada.png` | Estado de entrada |
-
 | `05-firestore-entrada.png` | Documento `checked-in` |
-
 | `06-storage-entrada.png` | `check-in.jpg` |
-
 | `07-jornada-completada.png` | Estado final en la app |
-
 | `08-firestore-salida.png` | Documento `completed` |
-
 | `09-storage-salida.png` | `check-out.jpg` |
-
 | `10-pruebas-flutter.png` | Resultado de `flutter test` |
-
 | `11-pruebas-reglas.png` | Resultado `42 passing` |
 
 Las capturas no deben mostrar contraseñas, tokens, claves privadas ni información personal innecesaria.
@@ -928,15 +667,10 @@ Porque son registros de auditoría. Una eliminación destruiría la trazabilidad
 ### ¿Qué limitaciones existen?
 
 - Storage remoto puede requerir Blaze.
-
 - No existe reconocimiento facial.
-
 - No existe panel administrativo completo.
-
 - No se admiten múltiples turnos.
-
 - La detección de GPS simulado puede reforzarse con Play Integrity.
-
 - Se necesita definir una política institucional de retención.
 
 ## 18. Criterios de aceptación del MVP
@@ -944,55 +678,32 @@ Porque son registros de auditoría. Una eliminación destruiría la trazabilidad
 El MVP se considera correcto cuando:
 
 - Solo accede un usuario autenticado y activo.
-
 - El perfil tiene una sede válida.
-
 - La sede está activa.
-
 - La ubicación está dentro del radio.
-
 - La precisión es aceptable.
-
 - El GPS no está simulado.
-
 - La evidencia es JPEG y no supera 2 MB.
-
 - Solo existe una entrada diaria.
-
 - La salida requiere entrada.
-
 - La entrada no cambia al registrar salida.
-
 - La jornada completada no vuelve a modificarse.
-
 - Las evidencias confirmadas son inmutables.
-
 - Otro trabajador no puede consultar los datos.
-
 - Las pruebas Flutter y Firebase finalizan correctamente.
 
 ## 19. Archivos verificables
 
 | Evidencia | Ruta |
-
 |---|---|
-
 | Reglas Firestore | `firestore.rules` |
-
 | Índices | `firestore.indexes.json` |
-
 | Reglas Storage | `storage.rules` |
-
 | Pruebas Firestore | `firebase-tests/test/firestore.rules.test.js` |
-
 | Pruebas Storage | `firebase-tests/test/storage.rules.test.js` |
-
 | Datos locales | `firebase-tests/scripts/seed-demo.js` |
-
 | Pruebas Flutter | `test/` |
-
 | Configuración de emuladores | `firebase.json` |
-
 | Código principal | `lib/` |
 
 ## 20. Conclusión
@@ -1002,19 +713,12 @@ La implementación no se limita a mostrar consultas de ejemplo. Las operaciones 
 La combinación de:
 
 - IDs deterministas.
-
 - Transacciones.
-
 - Validación geográfica.
-
 - Evidencia inmutable.
-
 - Reglas restrictivas.
-
 - Manejo de errores.
-
 - Pruebas automatizadas.
-
 - Entorno reproducible.
 
 permite demostrar la integridad del MVP y defender técnicamente sus decisiones.
