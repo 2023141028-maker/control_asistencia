@@ -17,6 +17,11 @@ service cloud.firestore {
       ).data;
     }
 
+    function isActiveUser() {
+      return hasProfile() &&
+        currentUser().status == 'active';
+    }
+
     function isActiveAdmin() {
       return hasProfile() &&
         currentUser().role == 'admin' &&
@@ -83,8 +88,7 @@ service cloud.firestore {
     function canReadOffice(officeId) {
       return isActiveAdmin() ||
         (
-          hasProfile() &&
-          currentUser().status == 'active' &&
+          isActiveUser() &&
           currentUser().officeId == officeId
         );
     }
@@ -133,6 +137,131 @@ service cloud.firestore {
         data.schemaVersion == 1 &&
         data.createdAt is timestamp &&
         data.updatedAt is timestamp;
+    }
+
+    function attendanceOffice(officeId) {
+      return get(
+        /databases/$(database)/documents/offices/$(officeId)
+      ).data;
+    }
+
+    function isActiveOffice(officeId) {
+      return officeId is string &&
+        exists(
+          /databases/$(database)/documents/offices/$(officeId)
+        ) &&
+        attendanceOffice(officeId).active == true &&
+        attendanceOffice(officeId).schemaVersion == 1;
+    }
+
+    function validAttendanceBase(attendanceId, data) {
+      return data.keys().hasAll([
+          'userId',
+          'officeId',
+          'workDate',
+          'mode',
+          'status',
+          'checkIn',
+          'checkOut',
+          'schemaVersion',
+          'createdAt',
+          'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'userId',
+          'officeId',
+          'workDate',
+          'mode',
+          'status',
+          'checkIn',
+          'checkOut',
+          'schemaVersion',
+          'createdAt',
+          'updatedAt'
+        ]) &&
+        data.userId is string &&
+        data.userId.size() > 0 &&
+        data.userId.size() <= 128 &&
+        data.officeId is string &&
+        data.officeId.size() >= 3 &&
+        data.officeId.size() <= 50 &&
+        data.workDate is string &&
+        data.workDate.matches(
+          '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
+        ) &&
+        attendanceId == data.userId + '_' + data.workDate &&
+        data.mode == 'onsite' &&
+        data.status in ['checked-in', 'completed'] &&
+        data.checkIn is map &&
+        (
+          data.checkOut == null ||
+          data.checkOut is map
+        ) &&
+        data.schemaVersion is int &&
+        data.schemaVersion == 1 &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function validAttendanceMark(
+      mark,
+      officeData,
+      userId,
+      attendanceId,
+      eventName
+    ) {
+      return mark is map &&
+        mark.keys().hasAll([
+          'capturedAt',
+          'recordedAt',
+          'location',
+          'accuracyMeters',
+          'distanceMeters',
+          'isMocked',
+          'evidencePath'
+        ]) &&
+        mark.keys().hasOnly([
+          'capturedAt',
+          'recordedAt',
+          'location',
+          'accuracyMeters',
+          'distanceMeters',
+          'isMocked',
+          'evidencePath'
+        ]) &&
+        mark.capturedAt is timestamp &&
+        mark.recordedAt is timestamp &&
+        mark.recordedAt == request.time &&
+        mark.capturedAt >=
+          request.time - duration.value(10, 'm') &&
+        mark.capturedAt <=
+          request.time + duration.value(2, 'm') &&
+        mark.location is latlng &&
+        mark.accuracyMeters is number &&
+        mark.accuracyMeters > 0 &&
+        mark.accuracyMeters <= officeData.maxAccuracyMeters &&
+        mark.distanceMeters is number &&
+        mark.distanceMeters >= 0 &&
+        mark.distanceMeters <= officeData.radiusMeters &&
+        mark.isMocked is bool &&
+        mark.isMocked == false &&
+        mark.evidencePath is string &&
+        mark.evidencePath ==
+          'attendanceEvidence/' +
+          userId +
+          '/' +
+          attendanceId +
+          '/' +
+          eventName +
+          '.jpg';
+    }
+
+    function canReadAttendance(data) {
+      return isActiveAdmin() ||
+        (
+          isActiveUser() &&
+          data.userId == request.auth.uid
+        );
     }
 
     match /users/{userId} {
@@ -189,6 +318,68 @@ service cloud.firestore {
           'active',
           'updatedAt'
         ]) &&
+        request.resource.data.updatedAt == request.time;
+
+      allow delete: if false;
+    }
+
+    match /attendances/{attendanceId} {
+      allow get: if canReadAttendance(resource.data);
+
+      allow list: if
+        request.query.limit != null &&
+        request.query.limit <= 50 &&
+        canReadAttendance(resource.data);
+
+      allow create: if
+        isActiveUser() &&
+        validAttendanceBase(
+          attendanceId,
+          request.resource.data
+        ) &&
+        request.auth.uid == request.resource.data.userId &&
+        currentUser().officeId ==
+          request.resource.data.officeId &&
+        isActiveOffice(request.resource.data.officeId) &&
+        request.resource.data.status == 'checked-in' &&
+        request.resource.data.checkOut == null &&
+        validAttendanceMark(
+          request.resource.data.checkIn,
+          attendanceOffice(request.resource.data.officeId),
+          request.resource.data.userId,
+          attendanceId,
+          'check-in'
+        ) &&
+        request.resource.data.createdAt == request.time &&
+        request.resource.data.updatedAt == request.time;
+
+      allow update: if
+        isActiveUser() &&
+        validAttendanceBase(
+          attendanceId,
+          request.resource.data
+        ) &&
+        request.auth.uid == resource.data.userId &&
+        currentUser().officeId == resource.data.officeId &&
+        isActiveOffice(resource.data.officeId) &&
+        resource.data.status == 'checked-in' &&
+        resource.data.checkOut == null &&
+        request.resource.data.status == 'completed' &&
+        request.resource.data.checkOut is map &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status',
+          'checkOut',
+          'updatedAt'
+        ]) &&
+        validAttendanceMark(
+          request.resource.data.checkOut,
+          attendanceOffice(resource.data.officeId),
+          resource.data.userId,
+          attendanceId,
+          'check-out'
+        ) &&
+        request.resource.data.checkOut.capturedAt >=
+          resource.data.checkIn.recordedAt &&
         request.resource.data.updatedAt == request.time;
 
       allow delete: if false;
