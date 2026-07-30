@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'app/app.dart';
 import 'features/auth/data/firebase_auth_repository.dart';
+import 'features/offices/data/firestore_office_repository.dart';
 import 'features/users/data/firestore_user_repository.dart';
 import 'firebase_options.dart';
 
@@ -15,6 +16,7 @@ Future<void> main() async {
     AttendanceApp(
       authRepository: FirebaseAuthRepository(),
       userRepository: FirestoreUserRepository(),
+      officeRepository: FirestoreOfficeRepository(),
     ),
   );
 }

@@ -4,6 +4,8 @@ import 'package:control_asistencia/features/users/domain/user_profile.dart';
 import 'package:control_asistencia/features/users/domain/user_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:control_asistencia/features/offices/domain/office.dart';
+import 'package:control_asistencia/features/offices/domain/office_repository.dart';
 
 class FakeAuthRepository implements AuthRepository {
   @override
@@ -26,6 +28,13 @@ class FakeUserRepository implements UserRepository {
   }
 }
 
+class FakeOfficeRepository implements OfficeRepository {
+  @override
+  Stream<Office?> watchOffice({required String officeId}) {
+    return Stream<Office?>.value(null);
+  }
+}
+
 void main() {
   testWidgets('muestra el formulario cuando no existe una sesión', (
     tester,
@@ -34,6 +43,7 @@ void main() {
       AttendanceApp(
         authRepository: FakeAuthRepository(),
         userRepository: FakeUserRepository(),
+        officeRepository: FakeOfficeRepository(),
       ),
     );
     await tester.pumpAndSettle();

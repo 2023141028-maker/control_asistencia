@@ -2,17 +2,20 @@ import 'package:flutter/material.dart';
 
 import '../features/auth/domain/auth_repository.dart';
 import '../features/auth/presentation/auth_gate.dart';
+import '../features/offices/domain/office_repository.dart';
 import '../features/users/domain/user_repository.dart';
 
 class AttendanceApp extends StatelessWidget {
   const AttendanceApp({
     required this.authRepository,
     required this.userRepository,
+    required this.officeRepository,
     super.key,
   });
 
   final AuthRepository authRepository;
   final UserRepository userRepository;
+  final OfficeRepository officeRepository;
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +29,7 @@ class AttendanceApp extends StatelessWidget {
       home: AuthGate(
         authRepository: authRepository,
         userRepository: userRepository,
+        officeRepository: officeRepository,
       ),
     );
   }

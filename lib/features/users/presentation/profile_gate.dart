@@ -2,7 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../auth/domain/auth_repository.dart';
-import '../../home/presentation/home_screen.dart';
+import '../../offices/domain/office_repository.dart';
+import '../../offices/presentation/office_gate.dart';
 import '../domain/user_profile.dart';
 import '../domain/user_repository.dart';
 
@@ -11,12 +12,14 @@ class ProfileGate extends StatefulWidget {
     required this.user,
     required this.authRepository,
     required this.userRepository,
+    required this.officeRepository,
     super.key,
   });
 
   final User user;
   final AuthRepository authRepository;
   final UserRepository userRepository;
+  final OfficeRepository officeRepository;
 
   @override
   State<ProfileGate> createState() => _ProfileGateState();
@@ -107,10 +110,22 @@ class _ProfileGateState extends State<ProfileGate> {
         }
 
         return switch (profile.status) {
-          UserStatus.active => HomeScreen(
-            profile: profile,
-            authRepository: widget.authRepository,
-          ),
+          UserStatus.active =>
+            profile.officeId == null
+                ? _AccessStateScreen(
+                    icon: Icons.business_outlined,
+                    title: 'Sin sede asignada',
+                    message:
+                        'Tu perfil está activo, pero todavía no tiene una '
+                        'sede asignada.',
+                    onSignOut: _signOut,
+                  )
+                : OfficeGate(
+                    officeId: profile.officeId!,
+                    profile: profile,
+                    authRepository: widget.authRepository,
+                    officeRepository: widget.officeRepository,
+                  ),
           UserStatus.pending => _AccessStateScreen(
             icon: Icons.schedule,
             title: 'Cuenta pendiente',

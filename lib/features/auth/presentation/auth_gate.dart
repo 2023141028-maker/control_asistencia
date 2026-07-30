@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../offices/domain/office_repository.dart';
 import '../../users/domain/user_repository.dart';
 import '../../users/presentation/profile_gate.dart';
 import '../domain/auth_repository.dart';
@@ -10,11 +11,13 @@ class AuthGate extends StatelessWidget {
   const AuthGate({
     required this.authRepository,
     required this.userRepository,
+    required this.officeRepository,
     super.key,
   });
 
   final AuthRepository authRepository;
   final UserRepository userRepository;
+  final OfficeRepository officeRepository;
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +46,7 @@ class AuthGate extends StatelessWidget {
           user: user,
           authRepository: authRepository,
           userRepository: userRepository,
+          officeRepository: officeRepository,
         );
       },
     );
