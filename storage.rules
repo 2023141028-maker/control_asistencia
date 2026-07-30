@@ -1,0 +1,195 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function userProfile(userId) {
+      return firestore.get(
+        /databases/(default)/documents/users/$(userId)
+      ).data;
+    }
+
+    function attendanceData(attendanceId) {
+      return firestore.get(
+        /databases/(default)/documents/attendances/$(attendanceId)
+      ).data;
+    }
+
+    function attendanceExists(attendanceId) {
+      return firestore.exists(
+        /databases/(default)/documents/attendances/$(attendanceId)
+      );
+    }
+
+    function isActiveOwner(userId) {
+      return isSignedIn() &&
+        request.auth.uid == userId &&
+        userProfile(userId).status == 'active' &&
+        userProfile(userId).officeId is string;
+    }
+
+    function isActiveAdmin() {
+      return isSignedIn() &&
+        userProfile(request.auth.uid).role == 'admin' &&
+        userProfile(request.auth.uid).status == 'active';
+    }
+
+    function validAttendanceId(userId, attendanceId) {
+      return attendanceId.matches(
+        '^' +
+        userId +
+        '_[0-9]{4}-[0-9]{2}-[0-9]{2}$'
+      );
+    }
+
+    function expectedEvidencePath(
+      userId,
+      attendanceId,
+      fileName
+    ) {
+      return 'attendanceEvidence/' +
+        userId +
+        '/' +
+        attendanceId +
+        '/' +
+        fileName;
+    }
+
+    function validEvent(fileName, eventName) {
+      return (
+        fileName == 'check-in.jpg' &&
+        eventName == 'check-in'
+      ) || (
+        fileName == 'check-out.jpg' &&
+        eventName == 'check-out'
+      );
+    }
+
+    function validMetadata(
+      userId,
+      attendanceId,
+      fileName
+    ) {
+      return request.resource.metadata.keys().hasAll([
+          'ownerUid',
+          'attendanceId',
+          'eventName',
+          'officeId',
+          'schemaVersion'
+        ]) &&
+        request.resource.metadata.keys().hasOnly([
+          'ownerUid',
+          'attendanceId',
+          'eventName',
+          'officeId',
+          'schemaVersion'
+        ]) &&
+        request.resource.metadata.ownerUid == userId &&
+        request.resource.metadata.attendanceId ==
+          attendanceId &&
+        request.resource.metadata.officeId ==
+          userProfile(userId).officeId &&
+        request.resource.metadata.schemaVersion == '1' &&
+        validEvent(
+          fileName,
+          request.resource.metadata.eventName
+        );
+    }
+
+    function validImage(
+      userId,
+      attendanceId,
+      fileName
+    ) {
+      return request.resource.size > 0 &&
+        request.resource.size <= 2 * 1024 * 1024 &&
+        request.resource.contentType == 'image/jpeg' &&
+        validMetadata(
+          userId,
+          attendanceId,
+          fileName
+        );
+    }
+
+    function canCreateEvidence(
+      userId,
+      attendanceId,
+      fileName
+    ) {
+      return (
+        fileName == 'check-in.jpg' &&
+        !attendanceExists(attendanceId)
+      ) || (
+        fileName == 'check-out.jpg' &&
+        attendanceExists(attendanceId) &&
+        attendanceData(attendanceId).userId == userId &&
+        attendanceData(attendanceId).officeId ==
+          userProfile(userId).officeId &&
+        attendanceData(attendanceId).status ==
+          'checked-in' &&
+        attendanceData(attendanceId).checkOut == null &&
+        attendanceData(attendanceId)
+          .checkIn.evidencePath ==
+          expectedEvidencePath(
+            userId,
+            attendanceId,
+            'check-in.jpg'
+          )
+      );
+    }
+
+    function canDeleteUncommittedEvidence(
+      attendanceId,
+      fileName
+    ) {
+      return (
+        fileName == 'check-in.jpg' &&
+        !attendanceExists(attendanceId)
+      ) || (
+        fileName == 'check-out.jpg' &&
+        attendanceExists(attendanceId) &&
+        attendanceData(attendanceId).status ==
+          'checked-in' &&
+        attendanceData(attendanceId).checkOut == null
+      );
+    }
+
+    match /attendanceEvidence/{userId}/{attendanceId}/{fileName} {
+      allow get: if
+        isActiveOwner(userId) ||
+        isActiveAdmin();
+
+      allow list: if false;
+
+      allow create: if
+        resource == null &&
+        isActiveOwner(userId) &&
+        validAttendanceId(userId, attendanceId) &&
+        validImage(userId, attendanceId, fileName) &&
+        canCreateEvidence(
+          userId,
+          attendanceId,
+          fileName
+        );
+
+      // La evidencia almacenada es inmutable.
+      allow update: if false;
+
+      // Solo se limpia una foto si Firestore aún no la confirmó.
+      allow delete: if
+        isActiveOwner(userId) &&
+        validAttendanceId(userId, attendanceId) &&
+        canDeleteUncommittedEvidence(
+          attendanceId,
+          fileName
+        );
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
