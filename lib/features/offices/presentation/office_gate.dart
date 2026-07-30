@@ -1,7 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../auth/domain/auth_repository.dart';
 import '../../home/presentation/home_screen.dart';
+import '../../location/data/geolocator_location_service.dart';
+import '../../location/domain/geofence_validator.dart';
+import '../../location/domain/location_service.dart';
 import '../../users/domain/user_profile.dart';
 import '../domain/office.dart';
 import '../domain/office_repository.dart';
@@ -26,6 +30,12 @@ class OfficeGate extends StatefulWidget {
 
 class _OfficeGateState extends State<OfficeGate> {
   late Stream<Office?> _officeStream;
+
+  final LocationService _locationService = GeolocatorLocationService();
+
+  final GeofenceValidator _geofenceValidator = const GeofenceValidator(
+    allowMockedLocations: kDebugMode,
+  );
 
   @override
   void initState() {
@@ -114,7 +124,10 @@ class _OfficeGateState extends State<OfficeGate> {
 
         return HomeScreen(
           profile: widget.profile,
+          office: office,
           authRepository: widget.authRepository,
+          locationService: _locationService,
+          geofenceValidator: _geofenceValidator,
         );
       },
     );

@@ -1,17 +1,27 @@
 import 'package:flutter/material.dart';
 
 import '../../auth/domain/auth_repository.dart';
+import '../../location/domain/geofence_validator.dart';
+import '../../location/domain/location_service.dart';
+import '../../location/presentation/location_verification_card.dart';
+import '../../offices/domain/office.dart';
 import '../../users/domain/user_profile.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({
     required this.profile,
+    required this.office,
     required this.authRepository,
+    required this.locationService,
+    required this.geofenceValidator,
     super.key,
   });
 
   final UserProfile profile;
+  final Office office;
   final AuthRepository authRepository;
+  final LocationService locationService;
+  final GeofenceValidator geofenceValidator;
 
   Future<void> _signOut(BuildContext context) async {
     try {
@@ -22,6 +32,12 @@ class HomeScreen extends StatelessWidget {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(error.message)));
+    } catch (_) {
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No se pudo cerrar la sesión.')),
+      );
     }
   }
 
@@ -88,38 +104,77 @@ class HomeScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    _ProfileRow(
+                    _InformationRow(
                       icon: Icons.badge_outlined,
                       label: 'Código',
                       value: profile.employeeCode,
                     ),
                     const Divider(),
-                    _ProfileRow(
+                    _InformationRow(
                       icon: Icons.email_outlined,
                       label: 'Correo',
                       value: profile.email,
                     ),
                     const Divider(),
-                    _ProfileRow(
+                    _InformationRow(
                       icon: Icons.admin_panel_settings_outlined,
                       label: 'Rol',
                       value: profile.role.label,
                     ),
                     const Divider(),
-                    _ProfileRow(
+                    _InformationRow(
                       icon: Icons.verified_outlined,
                       label: 'Estado',
                       value: profile.status.label,
                     ),
-                    const Divider(),
-                    _ProfileRow(
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Sede asignada',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 10),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    _InformationRow(
                       icon: Icons.business_outlined,
-                      label: 'Oficina',
-                      value: profile.officeId ?? 'Sin asignar',
+                      label: 'Sede',
+                      value: office.name,
+                    ),
+                    const Divider(),
+                    _InformationRow(
+                      icon: Icons.place_outlined,
+                      label: 'Dirección',
+                      value: office.address,
+                    ),
+                    const Divider(),
+                    _InformationRow(
+                      icon: Icons.radar,
+                      label: 'Radio permitido',
+                      value: '${office.radiusMeters.toStringAsFixed(0)} metros',
+                    ),
+                    const Divider(),
+                    _InformationRow(
+                      icon: Icons.gps_fixed,
+                      label: 'Precisión máxima',
+                      value:
+                          '${office.maxAccuracyMeters.toStringAsFixed(0)} metros',
                     ),
                   ],
                 ),
               ),
+            ),
+            const SizedBox(height: 24),
+            LocationVerificationCard(
+              office: office,
+              locationService: locationService,
+              geofenceValidator: geofenceValidator,
             ),
             const SizedBox(height: 20),
             Card(
@@ -127,7 +182,7 @@ class HomeScreen extends StatelessWidget {
                 leading: Icon(Icons.security, color: colors.primary),
                 title: const Text('Acceso verificado'),
                 subtitle: const Text(
-                  'Firebase Authentication y el perfil de Firestore '
+                  'Firebase Authentication, el perfil y la sede de Firestore '
                   'fueron validados correctamente.',
                 ),
               ),
@@ -139,8 +194,8 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class _ProfileRow extends StatelessWidget {
-  const _ProfileRow({
+class _InformationRow extends StatelessWidget {
+  const _InformationRow({
     required this.icon,
     required this.label,
     required this.value,
@@ -153,10 +208,12 @@ class _ProfileRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(icon, size: 22),
         const SizedBox(width: 14),
         Expanded(child: Text(label)),
+        const SizedBox(width: 12),
         Flexible(
           child: Text(
             value,
