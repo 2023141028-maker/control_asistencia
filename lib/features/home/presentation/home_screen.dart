@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../attendance/application/attendance_registration_service.dart';
 import '../../attendance/domain/attendance_repository.dart';
+import '../../attendance/presentation/attendance_history_screen.dart';
 import '../../attendance/presentation/attendance_registration_card.dart';
 import '../../auth/domain/auth_repository.dart';
 import '../../location/domain/geofence_validator.dart';
@@ -46,6 +47,17 @@ class HomeScreen extends StatelessWidget {
         const SnackBar(content: Text('No se pudo cerrar la sesión.')),
       );
     }
+  }
+
+  void _openHistory(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => AttendanceHistoryScreen(
+          userId: profile.uid,
+          attendanceRepository: attendanceRepository,
+        ),
+      ),
+    );
   }
 
   @override
@@ -190,6 +202,31 @@ class HomeScreen extends StatelessWidget {
               office: office,
               attendanceRepository: attendanceRepository,
               registrationService: registrationService,
+            ),
+            const SizedBox(height: 20),
+            Card(
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 10,
+                ),
+                leading: CircleAvatar(
+                  backgroundColor: colors.secondaryContainer,
+                  child: Icon(
+                    Icons.history,
+                    color: colors.onSecondaryContainer,
+                  ),
+                ),
+                title: const Text(
+                  'Historial de asistencias',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: const Text(
+                  'Consulta tus últimas 30 jornadas registradas.',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _openHistory(context),
+              ),
             ),
             const SizedBox(height: 20),
             Card(

@@ -56,13 +56,13 @@ users/{uid}
 
 offices/{officeId}
 
-attendances/{uid}\_{YYYY-MM-DD}
+attendances/{uid}_{YYYY-MM-DD}
 
 attendanceEvidence/
 
 └── {uid}/
 
-&#x20;   └── {uid}\_{YYYY-MM-DD}/
+&#x20;   └── {uid}_{YYYY-MM-DD}/
 
 &#x20;       ├── check-in.jpg
 
@@ -80,7 +80,7 @@ El identificador se construye así:
 
 ```text
 
-{uid}\_{YYYY-MM-DD}
+{uid}_{YYYY-MM-DD}
 
 ```
 
@@ -88,7 +88,7 @@ Ejemplo:
 
 ```text
 
-employee-001\_2026-07-30
+employee-001_2026-07-30
 
 ```
 
@@ -170,13 +170,13 @@ Este campo permite detectar documentos incompatibles y preparar migraciones futu
 
 stateDiagram-v2
 
-&#x20;   \[\*] --> SinRegistro
+&#x20;   [*] --> SinRegistro
 
 &#x20;   SinRegistro --> EntradaRegistrada: registrar entrada
 
 &#x20;   EntradaRegistrada --> JornadaCompletada: registrar salida
 
-&#x20;   JornadaCompletada --> \[\*]
+&#x20;   JornadaCompletada --> [*]
 
 ```
 
@@ -362,7 +362,7 @@ Ruta:
 
 ```text
 
-attendances/{uid}\_{YYYY-MM-DD}
+attendances/{uid}_{YYYY-MM-DD}
 
 ```
 
@@ -396,7 +396,7 @@ El ID debe ser exactamente:
 
 ```text
 
-userId + "\_" + workDate
+userId + "_" + workDate
 
 ```
 
@@ -404,7 +404,7 @@ Por ejemplo:
 
 ```text
 
-employee-001\_2026-07-30
+employee-001_2026-07-30
 
 ```
 
@@ -506,7 +506,7 @@ attendanceEvidence/{uid}/{attendanceId}/check-out.jpg
 
 ```text
 
-attendances/employee-001\_2026-07-30
+attendances/employee-001_2026-07-30
 
 {
 
@@ -536,7 +536,7 @@ attendances/employee-001\_2026-07-30
 
 &#x20;   evidencePath:
 
-&#x20;     "attendanceEvidence/employee-001/employee-001\_2026-07-30/check-in.jpg"
+&#x20;     "attendanceEvidence/employee-001/employee-001_2026-07-30/check-in.jpg"
 
 &#x20; },
 
@@ -556,7 +556,7 @@ attendances/employee-001\_2026-07-30
 
 &#x20;   evidencePath:
 
-&#x20;     "attendanceEvidence/employee-001/employee-001\_2026-07-30/check-out.jpg"
+&#x20;     "attendanceEvidence/employee-001/employee-001_2026-07-30/check-out.jpg"
 
 &#x20; },
 
@@ -724,19 +724,19 @@ La validación del cliente mejora la experiencia, pero las reglas del servidor c
 
 |---|---|
 
-| Modelo de usuario | `lib/features/users/domain/user\_profile.dart` |
+| Modelo de usuario | `lib/features/users/domain/user_profile.dart` |
 
 | Modelo de sede | `lib/features/offices/domain/office.dart` |
 
-| Modelo de asistencia | `lib/features/attendance/domain/attendance\_record.dart` |
+| Modelo de asistencia | `lib/features/attendance/domain/attendance_record.dart` |
 
-| Fecha laboral e ID | `lib/features/attendance/domain/attendance\_day.dart` |
+| Fecha laboral e ID | `lib/features/attendance/domain/attendance_day.dart` |
 
-| Repositorio Firestore | `lib/features/attendance/data/firestore\_attendance\_repository.dart` |
+| Repositorio Firestore | `lib/features/attendance/data/firestore_attendance_repository.dart` |
 
-| Modelo de evidencia | `lib/features/evidence/domain/attendance\_evidence.dart` |
+| Modelo de evidencia | `lib/features/evidence/domain/attendance_evidence.dart` |
 
-| Repositorio Storage | `lib/features/evidence/data/firebase\_evidence\_repository.dart` |
+| Repositorio Storage | `lib/features/evidence/data/firebase_evidence_repository.dart` |
 
 | Reglas Firestore | `firestore.rules` |
 

@@ -132,10 +132,10 @@ El proyecto separa responsabilidades en cuatro capas:
 
 flowchart TD
 
-&#x20;   A\[Interfaz Flutter] --> B\[Casos de uso]
+&#x20;   A[Interfaz Flutter] --> B[Casos de uso]
 
-&#x20;   B --> C\[Reglas de dominio]
+&#x20;   B --> C[Reglas de dominio]
 
-&#x20;   C --> D\[Firebase]
+&#x20;   C --> D[Firebase]
 
-&#x20;   C --> E\[GPS y cámara]
+&#x20;   C --> E[GPS y cámara]

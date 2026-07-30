@@ -18,7 +18,7 @@
 
 | Plataforma | Aplicación móvil Android desarrollada con Flutter |
 
-| Repositorio | https://github.com/2023141028-maker/control\_asistencia |
+| Repositorio | https://github.com/2023141028-maker/control_asistencia |
 
 | Backend | Firebase Authentication, Cloud Firestore y Cloud Storage |
 

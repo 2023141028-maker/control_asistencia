@@ -94,7 +94,7 @@ Características:
 
 ```text
 
-attendances/{uid}\_{YYYY-MM-DD}
+attendances/{uid}_{YYYY-MM-DD}
 
 ```
 
@@ -244,7 +244,7 @@ La entrada utiliza una transacción:
 
 ```text
 
-1\. Leer attendances/{uid}\_{fecha}.
+1\. Leer attendances/{uid}_{fecha}.
 
 2\. Rechazar si ya existe.
 
@@ -282,7 +282,7 @@ La existencia del documento y la creación se evalúan como una operación atóm
 
 ```text
 
-1\. Leer attendances/{uid}\_{fecha}.
+1\. Leer attendances/{uid}_{fecha}.
 
 2\. Rechazar si no existe.
 
@@ -364,13 +364,13 @@ Por eso se aplica una estrategia de compensación:
 
 flowchart TD
 
-&#x20;   A\[Capturar foto] --> B\[Subir a Storage]
+&#x20;   A[Capturar foto] --> B[Subir a Storage]
 
-&#x20;   B --> C\[Registrar en Firestore]
+&#x20;   B --> C[Registrar en Firestore]
 
-&#x20;   C -->|Correcto| D\[Confirmar jornada]
+&#x20;   C -->|Correcto| D[Confirmar jornada]
 
-&#x20;   C -->|Error| E\[Eliminar foto provisional]
+&#x20;   C -->|Error| E[Eliminar foto provisional]
 
 ```
 
@@ -484,11 +484,11 @@ Cada error se transforma en un mensaje comprensible para el usuario.
 
 | Análisis estático | `flutter analyze` | Detectar problemas de tipos y estilo |
 
-| Pruebas unitarias | `flutter\_test` | Validar dominio y casos de uso |
+| Pruebas unitarias | `flutter_test` | Validar dominio y casos de uso |
 
-| Pruebas de widgets | `flutter\_test` | Validar estados visibles |
+| Pruebas de widgets | `flutter_test` | Validar estados visibles |
 
-| Repositorios | `fake\_cloud\_firestore` | Validar transacciones y lectura |
+| Repositorios | `fake_cloud_firestore` | Validar transacciones y lectura |
 
 | Reglas Firestore | Emulator Suite | Validar acceso e integridad |
 
@@ -502,7 +502,7 @@ Resultado verificado:
 
 ```text
 
-30 pruebas aprobadas
+34 pruebas aprobadas
 
 ```
 
@@ -512,21 +512,21 @@ Resultado verificado:
 
 |---|---:|---|
 
-| `test/widget\_test.dart` | 1 | Formulario sin sesión |
+| `test/widget_test.dart` | 1 | Formulario sin sesión |
 
-| `geofence\_validator\_test.dart` | 5 | Radio, precisión y GPS simulado |
+| `geofence_validator_test.dart` | 5 | Radio, precisión y GPS simulado |
 
-| `location\_verification\_card\_test.dart` | 2 | Estados permitido y rechazado |
+| `location_verification_card_test.dart` | 2 | Estados permitido y rechazado |
 
-| `attendance\_day\_test.dart` | 4 | Zona horaria, cambio de día e ID |
+| `attendance_day_test.dart` | 4 | Zona horaria, cambio de día e ID |
 
-| `firestore\_attendance\_repository\_test.dart` | 4 | Entrada, salida y duplicidad |
+| `firestore_attendance_repository_test.dart` | 4 | Entrada, salida y duplicidad |
 
-| `attendance\_evidence\_test.dart` | 7 | Ruta, JPEG, tamaño y UID |
+| `attendance_evidence_test.dart` | 7 | Ruta, JPEG, tamaño y UID |
 
-| `attendance\_registration\_service\_test.dart` | 7 | Coordinación y compensación |
+| `attendance_registration_service_test.dart` | 7 | Coordinación y compensación |
 
-| \*\*Total\*\* | \*\*30\*\* | |
+| **Total** | **30** | |
 
 ### 10.2. Casos de geocerca
 
@@ -594,6 +594,13 @@ Resultado verificado:
 
 - Reutiliza correctamente una fotografía recuperada.
 
+
+### 10.7. Pantalla de historial
+
+- Muestra un estado vacío sin asistencias.
+- Muestra una jornada con salida pendiente.
+- Muestra entrada y salida de una jornada completada.
+- Muestra errores del repositorio y la acción de reintento.
 ## 11. Pruebas de reglas Firestore
 
 Resultado:
@@ -792,7 +799,7 @@ Entorno:
 
 2\. Ejecutar el script `seed-demo.js`.
 
-3\. Iniciar la aplicación con `USE\_FIREBASE\_EMULATORS=true`.
+3\. Iniciar la aplicación con `USE_FIREBASE_EMULATORS=true`.
 
 4\. Iniciar sesión con el usuario local.
 

@@ -26,15 +26,15 @@ La finalidad es evitar asociar pantallas con operaciones genéricas que no exist
 
 flowchart TD
 
-&#x20;   A\[AuthGate] --> B\[LoginScreen]
+&#x20;   A[AuthGate] --> B[LoginScreen]
 
-&#x20;   A --> C\[ProfileGate]
+&#x20;   A --> C[ProfileGate]
 
-&#x20;   C --> D\[OfficeGate]
+&#x20;   C --> D[OfficeGate]
 
-&#x20;   D --> E\[HomeScreen]
+&#x20;   D --> E[HomeScreen]
 
-&#x20;   E --> F\[Ubicación y asistencia]
+&#x20;   E --> F[Ubicación y asistencia]
 
 ```
 
@@ -76,7 +76,7 @@ No se permite llegar directamente a `HomeScreen`. Antes deben validarse:
 
 | Validación geográfica | `LocationVerificationCard` | GPS y configuración de sede | Obtener ubicación y calcular distancia | Geolocator y dominio |
 
-| Jornada actual | `AttendanceRegistrationCard` | UID y fecha laboral | Leer `attendances/{uid}\_{fecha}` | Cloud Firestore |
+| Jornada actual | `AttendanceRegistrationCard` | UID y fecha laboral | Leer `attendances/{uid}_{fecha}` | Cloud Firestore |
 
 | Confirmación de marcación | `AlertDialog` | Tipo de evento | Confirmación local | Flutter |
 
@@ -90,7 +90,7 @@ No se permite llegar directamente a `HomeScreen`. Antes deben validarse:
 
 | Jornada completada | `AttendanceRegistrationCard` | `status` y `checkOut` | Interpretación del documento diario | Modelo de dominio |
 
-| Historial personal | Repositorio implementado | UID del trabajador | Filtro, orden y límite | Cloud Firestore |
+| Historial personal | `AttendanceHistoryScreen` | UID del trabajador | Filtro, orden y límite | Cloud Firestore |
 
 | Cerrar sesión | AppBar/ProfileGate | Sesión actual | `signOut` | Firebase Authentication |
 
@@ -100,7 +100,7 @@ Archivo:
 
 ```text
 
-lib/features/auth/presentation/login\_screen.dart
+lib/features/auth/presentation/login_screen.dart
 
 ```
 
@@ -158,7 +158,7 @@ Archivo:
 
 ```text
 
-lib/features/auth/presentation/auth\_gate.dart
+lib/features/auth/presentation/auth_gate.dart
 
 ```
 
@@ -198,9 +198,9 @@ Archivos:
 
 ```text
 
-lib/features/users/presentation/profile\_gate.dart
+lib/features/users/presentation/profile_gate.dart
 
-lib/features/users/data/firestore\_user\_repository.dart
+lib/features/users/data/firestore_user_repository.dart
 
 ```
 
@@ -276,9 +276,9 @@ Archivos:
 
 ```text
 
-lib/features/offices/presentation/office\_gate.dart
+lib/features/offices/presentation/office_gate.dart
 
-lib/features/offices/data/firestore\_office\_repository.dart
+lib/features/offices/data/firestore_office_repository.dart
 
 ```
 
@@ -346,7 +346,7 @@ Archivo:
 
 ```text
 
-lib/features/home/presentation/home\_screen.dart
+lib/features/home/presentation/home_screen.dart
 
 ```
 
@@ -392,7 +392,7 @@ Archivo:
 
 ```text
 
-lib/features/location/presentation/location\_verification\_card.dart
+lib/features/location/presentation/location_verification_card.dart
 
 ```
 
@@ -454,9 +454,9 @@ Archivos:
 
 ```text
 
-lib/features/attendance/presentation/attendance\_registration\_card.dart
+lib/features/attendance/presentation/attendance_registration_card.dart
 
-lib/features/attendance/data/firestore\_attendance\_repository.dart
+lib/features/attendance/data/firestore_attendance_repository.dart
 
 ```
 
@@ -464,7 +464,7 @@ lib/features/attendance/data/firestore\_attendance\_repository.dart
 
 ```text
 
-attendances/{uid}\_{YYYY-MM-DD}
+attendances/{uid}_{YYYY-MM-DD}
 
 ```
 
@@ -488,7 +488,7 @@ Equivalente Firestore:
 
 attendances
 
-&#x20; .doc(uid + "\_" + workDate)
+&#x20; .doc(uid + "_" + workDate)
 
 &#x20; .get()
 
@@ -524,7 +524,7 @@ Archivo coordinador:
 
 ```text
 
-lib/features/attendance/application/attendance\_registration\_service.dart
+lib/features/attendance/application/attendance_registration_service.dart
 
 ```
 
@@ -534,17 +534,17 @@ El registro no está fragmentado en operaciones independientes del usuario. Un s
 
 flowchart TD
 
-&#x20;   A\[Confirmar acción] --> B\[Capturar fotografía]
+&#x20;   A[Confirmar acción] --> B[Capturar fotografía]
 
-&#x20;   B --> C\[Obtener GPS nuevo]
+&#x20;   B --> C[Obtener GPS nuevo]
 
-&#x20;   C --> D\[Validar geocerca]
+&#x20;   C --> D[Validar geocerca]
 
-&#x20;   D --> E\[Subir evidencia]
+&#x20;   D --> E[Subir evidencia]
 
-&#x20;   E --> F\[Transacción Firestore]
+&#x20;   E --> F[Transacción Firestore]
 
-&#x20;   F --> G\[Actualizar interfaz]
+&#x20;   F --> G[Actualizar interfaz]
 
 ```
 
@@ -576,7 +576,7 @@ Si Firestore falla después de subir la fotografía, el servicio intenta elimina
 
 transaction.set(
 
-&#x20; attendances/{uid}\_{fecha},
+&#x20; attendances/{uid}_{fecha},
 
 &#x20; {
 
@@ -630,7 +630,7 @@ duplicateCheckIn
 
 transaction.update(
 
-&#x20; attendances/{uid}\_{fecha},
+&#x20; attendances/{uid}_{fecha},
 
 &#x20; {
 
@@ -732,7 +732,7 @@ Las reglas exigen:
 
 - Límite máximo de 50.
 
-Actualmente el repositorio y sus reglas están implementados. La pantalla visual del historial se integrará como siguiente mejora del MVP.
+El repositorio, las reglas y la pantalla visual del historial están implementados e integrados en el flujo principal del MVP.
 
 ## 16. Matriz de operaciones
 
@@ -750,9 +750,9 @@ Actualmente el repositorio y sus reglas están implementados. La pantalla visual
 
 | Observar sede | `watchOffice` | `offices/{officeId}` | `OfficeGate` |
 
-| Obtener jornada | `getForDay` | `attendances/{uid}\_{fecha}` | `AttendanceRegistrationCard` |
+| Obtener jornada | `getForDay` | `attendances/{uid}_{fecha}` | `AttendanceRegistrationCard` |
 
-| Consultar historial | `watchHistory` | Consulta `attendances` | Pantalla de historial por integrar |
+| Consultar historial | `watchHistory` | Consulta `attendances` | `AttendanceHistoryScreen` |
 
 | Capturar evidencia | `capture` | Cámara frontal | Servicio de registro |
 
@@ -790,19 +790,19 @@ Actualmente el repositorio y sus reglas están implementados. La pantalla visual
 
 |---|---|
 
-| Sesión | `lib/features/auth/presentation/auth\_gate.dart` |
+| Sesión | `lib/features/auth/presentation/auth_gate.dart` |
 
-| Inicio de sesión | `lib/features/auth/presentation/login\_screen.dart` |
+| Inicio de sesión | `lib/features/auth/presentation/login_screen.dart` |
 
-| Acceso por perfil | `lib/features/users/presentation/profile\_gate.dart` |
+| Acceso por perfil | `lib/features/users/presentation/profile_gate.dart` |
 
-| Acceso por sede | `lib/features/offices/presentation/office\_gate.dart` |
+| Acceso por sede | `lib/features/offices/presentation/office_gate.dart` |
 
-| Inicio | `lib/features/home/presentation/home\_screen.dart` |
+| Inicio | `lib/features/home/presentation/home_screen.dart` |
 
-| Ubicación | `lib/features/location/presentation/location\_verification\_card.dart` |
+| Ubicación | `lib/features/location/presentation/location_verification_card.dart` |
 
-| Asistencia | `lib/features/attendance/presentation/attendance\_registration\_card.dart` |
+| Asistencia | `lib/features/attendance/presentation/attendance_registration_card.dart` |
 
 ## 19. Conclusión
 
