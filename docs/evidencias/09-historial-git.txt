@@ -1,0 +1,30 @@
+﻿* 49b2587 (HEAD -> main, origin/main, origin/HEAD) docs: corregir listas numeradas
+* 6944a5c docs: normalizar formato Markdown
+* dbad33a feat(attendance): agregar historial de asistencias
+* e58dd51 docs: documentar arquitectura datos y pruebas del MVP
+* 2eb534f test(emulators): agregar entorno local reproducible
+* 21717ca feat(attendance): completar registro de jornada
+* e0aca42 feat(evidence): implementar captura y registro coordinado
+* 6e84b5c chore(evidence): agregar Storage e Image Picker
+* 9a711b1 test(storage): validar evidencias fotograficas con emulador
+* d6a637a test(firestore): validar reglas de asistencia con emulador
+* 2accab9 feat(attendance): implementar registro transaccional de asistencia
+* cbed8ea feat(location): integrar validacion geografica en la interfaz
+* 0d6027d feat(location): implementar servicio y validacion geografica
+* bb64fb4 chore(location): agregar Geolocator y permisos Android
+* a01cfd1 feat(offices): integrar sede asignada
+* 4cf1e2d feat(offices): definir sede y reglas geograficas
+* f9953d7 feat(users): integrar perfiles y control de acceso
+* 99d9bcc feat(users): definir modelo y reglas de perfiles
+* 94511ee chore(firestore): configurar Cloud Firestore seguro
+* 86cf54a feat(auth): implementar inicio de sesi├│n seguro
+* 5efd393 chore(auth): agregar Firebase Authentication
+* e0a03b1 chore(firebase): configurar Firebase Core para Android
+* 23c80ec chore: inicializar proyecto Flutter limpio
+*   2017052 (origin/legacy-before-firebase-rebuild) Merge branch 'main' of https://github.com/2023141028-maker/control_asistencia
+|\  
+| * 6ee2b8e Revise README with detailed features and technologies
+| * 499c2f0 Revise README for project details and installation steps
+* | c8f3976 Mejoras visuales: Modo oscuro, exportacion a Excel, diseno premium y evidencia fotografica
+|/  
+* 83bfbd7 Proyecto final: Control de asistencia con GPS y reconocimiento facial

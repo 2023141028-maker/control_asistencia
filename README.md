@@ -92,3 +92,16 @@ flowchart TD
     B --> C[Reglas de dominio]
     C --> D[Firebase]
     C --> E[GPS y cámara]
+```
+
+## Documentación
+
+- [Contexto, alcance y diagnóstico de datos](docs/01-contexto-y-diagnostico.md)
+- [Modelo y diccionario de datos](docs/02-modelo-y-diccionario.md)
+- [Matriz pantalla–dato–consulta](docs/03-matriz-pantalla-dato-consulta.md)
+- [Consultas, CRUD, pruebas y defensa](docs/04-pruebas-y-defensa.md)
+- [Trazabilidad final de la rúbrica](docs/05-trazabilidad-rubrica.md)
+
+## Evidencias de evaluación
+
+Las capturas, resultados de pruebas e historial del desarrollo están disponibles en la carpeta [`docs/evidencias`](docs/evidencias).
