@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --timeout 30000 test/**/*.test.js"
+    "test": "mocha --timeout 30000 test/**/*.test.js",
+    "seed": "node scripts/seed-demo.js"
   },
   "keywords": [],
   "author": "",
