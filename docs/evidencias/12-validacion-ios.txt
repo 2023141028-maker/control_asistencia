@@ -1,0 +1,31 @@
+VALIDACIÓN AUTOMATIZADA DE IOS
+
+Fecha: 31/07/2026
+Repositorio: https://github.com/2023141028-maker/control_asistencia
+Commit validado: ef1c2d3ab23c9a1397d79b3657b8b06c999d358b
+Workflow: Validar iOS
+Run ID: 30609922861
+Ejecución: https://github.com/2023141028-maker/control_asistencia/actions/runs/30609922861
+
+Entorno:
+- macOS 26.4 ARM64
+- Xcode 26.5, build 17F42
+- Flutter 3.44.4 estable
+- Bundle ID: pe.edu.unh.controlAsistencia
+
+Resultados:
+- flutter analyze: aprobado
+- flutter test: 35 pruebas aprobadas
+- Compilación para simulador iOS: aprobada
+- Instalación en simulador iPhone: aprobada
+- Inicio de la aplicación: aprobado
+- Captura: docs/evidencias/12-ios-launch.png
+
+Artefacto:
+- Nombre: control-asistencia-ios-simulator
+- Tamaño: 69,752,616 bytes
+- SHA-256: 02bbefab6b2c0b2d1fa0b1517917be9d594f1b3c50b44d711c3bbb81411af7cb
+
+Alcance:
+La aplicación compila, se instala y abre en iOS. La cámara y el GPS
+físicos deben comprobarse en un iPhone real antes de publicar en App Store.

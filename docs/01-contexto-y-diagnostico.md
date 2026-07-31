@@ -9,7 +9,7 @@
 | Sede del caso de estudio | UNH sede Pampas |
 | Autor | Wilder Huaman Quispe |
 | Código | 2023141028 |
-| Plataforma | Aplicación móvil Android desarrollada con Flutter |
+| Plataforma | Aplicación móvil Android e iOS desarrollada con Flutter |
 | Repositorio | https://github.com/2023141028-maker/control_asistencia |
 | Backend | Firebase Authentication, Cloud Firestore y Cloud Storage |
 

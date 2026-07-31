@@ -325,6 +325,7 @@ Cada error se transforma en un mensaje comprensible para el usuario.
 | Reglas Firestore | Emulator Suite | Validar acceso e integridad |
 | Reglas Storage | Emulator Suite | Validar evidencias |
 | Prueba manual | Emulador Android | Validar flujo completo |
+| Validación iOS | GitHub Actions, macOS 26 y simulador iPhone | Validar compilación, instalación y arranque |
 
 ## 10. Pruebas Flutter
 

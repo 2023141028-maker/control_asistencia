@@ -71,6 +71,19 @@ El MVP implementa:
 
 No incluye planillas, permisos laborales, reconocimiento facial, cálculo de remuneraciones ni múltiples turnos.
 
+## Plataformas verificadas
+
+| Plataforma | Validación realizada | Resultado |
+|---|---|---|
+| Android | Análisis, pruebas, APK release y flujo funcional en dispositivo/emulador | Aprobado |
+| iOS | Análisis, pruebas, compilación con Xcode 26.5, instalación y arranque en simulador iPhone | Aprobado |
+
+La validación automatizada de iOS se ejecutó mediante GitHub Actions en
+macOS 26 con Flutter 3.44.4. La aplicación permaneció abierta y generó la
+captura [`12-ios-launch.png`](docs/evidencias/12-ios-launch.png).
+
+La cámara y el GPS reales de iOS requieren una comprobación final en un
+iPhone físico antes de publicar en App Store.
 ## Sede configurada
 
 | Campo | Valor |

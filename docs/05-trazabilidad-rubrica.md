@@ -123,6 +123,7 @@ Storage y Firestore son servicios independientes y no comparten una única trans
 | Ubicación geográfica permitida | [`04-validacion-geografica-correcta.png`](evidencias/04-validacion-geografica-correcta.png) |
 | Asistencia creada en Firestore | [`05-asistencia-firestore.png`](evidencias/05-asistencia-firestore.png) |
 | Evidencia fotográfica almacenada | [`06-evidencia-storage.png`](evidencias/06-evidencia-storage.png) |
+| Aplicación iniciada en simulador iPhone | [`12-ios-launch.png`](evidencias/12-ios-launch.png) |
 
 ## 7. Flujo que puede demostrarse
 
