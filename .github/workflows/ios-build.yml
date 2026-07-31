@@ -1,0 +1,52 @@
+name: Validar iOS
+
+on:
+  push:
+    branches:
+      - feat/ios-support
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-ios:
+    name: Analizar, probar y compilar iOS
+    runs-on: macos-26
+    timeout-minutes: 40
+
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v6
+
+      - name: Configurar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.44.4'
+          cache: true
+
+      - name: Mostrar versiones
+        run: |
+          flutter --version
+          xcodebuild -version
+
+      - name: Instalar dependencias
+        run: flutter pub get
+
+      - name: Analizar código
+        run: flutter analyze
+
+      - name: Ejecutar pruebas
+        run: flutter test
+
+      - name: Compilar para simulador iOS
+        run: flutter build ios --simulator --debug
+
+      - name: Guardar aplicación del simulador
+        uses: actions/upload-artifact@v4
+        with:
+          name: control-asistencia-ios-simulator
+          path: build/ios/iphonesimulator/Runner.app
+          if-no-files-found: error
+          retention-days: 7
