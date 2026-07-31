@@ -43,10 +43,38 @@ jobs:
       - name: Compilar para simulador iOS
         run: flutter build ios --simulator --debug
 
+      - name: Iniciar aplicación en simulador iPhone
+        shell: bash
+        run: |
+          DEVICE_UDID="$(python3 -c 'import json, subprocess; data = json.loads(subprocess.check_output(["xcrun", "simctl", "list", "devices", "available", "-j"])); devices = [device for runtime, items in data["devices"].items() if "iOS" in runtime for device in items if device.get("isAvailable") and device["name"].startswith("iPhone")]; print(devices[0]["udid"])')"
+          APP_ID="pe.edu.unh.controlAsistencia"
+
+          echo "Usando simulador: $DEVICE_UDID"
+          xcrun simctl boot "$DEVICE_UDID" || true
+          xcrun simctl bootstatus "$DEVICE_UDID" -b
+
+          xcrun simctl install \
+            "$DEVICE_UDID" \
+            build/ios/iphonesimulator/Runner.app
+
+          LAUNCH_OUTPUT="$(xcrun simctl launch "$DEVICE_UDID" "$APP_ID")"
+          echo "$LAUNCH_OUTPUT"
+          APP_PID="${LAUNCH_OUTPUT##*: }"
+
+          sleep 12
+          kill -0 "$APP_PID"
+
+          xcrun simctl io \
+            "$DEVICE_UDID" \
+            screenshot \
+            build/ios/ios-launch.png
+
       - name: Guardar aplicación del simulador
         uses: actions/upload-artifact@v4
         with:
           name: control-asistencia-ios-simulator
-          path: build/ios/iphonesimulator/Runner.app
+          path: |
+            build/ios/iphonesimulator/Runner.app
+            build/ios/ios-launch.png
           if-no-files-found: error
           retention-days: 7
