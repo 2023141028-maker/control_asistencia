@@ -1,3 +1,10 @@
+flutter : Acceso denegado.
+En línea: 1 Carácter: 1
++ flutter test 2>&1 |
++ ~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Acceso denegado.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+
 Resolving dependencies...
 Downloading packages...
   matcher 0.12.19 (0.12.20 available)
@@ -8,40 +15,41 @@ Downloading packages...
 Got dependencies!
 5 packages have newer versions incompatible with dependency constraints.
 Try `flutter pub outdated` for more information.
-00:00 +0: loading C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/application/attendance_registration_service_test.dart
-00:00 +0: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/application/attendance_registration_service_test.dart: registra entrada cuando no existe asistencia del día
-00:00 +1: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/application/attendance_registration_service_test.dart: registra salida cuando existe una entrada abierta
-00:00 +2: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/application/attendance_registration_service_test.dart: cancela sin registrar cuando el usuario cierra la cámara
-00:00 +3: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/application/attendance_registration_service_test.dart: rechaza el registro cuando el GPS está fuera del radio
-00:00 +4: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/application/attendance_registration_service_test.dart: elimina la foto cuando la transacción de Firestore falla
-00:00 +5: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/application/attendance_registration_service_test.dart: impide registrar otra marca si la jornada terminó
-00:00 +6: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/application/attendance_registration_service_test.dart: utiliza la fotografía recuperada sin abrir otra cámara
-00:02 +7: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/data/firestore_attendance_repository_test.dart: registra entrada y rechaza una entrada duplicada
-00:03 +8: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/data/firestore_attendance_repository_test.dart: rechaza una salida cuando no existe entrada
-00:03 +9: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/data/firestore_attendance_repository_test.dart: completa la jornada después de registrar entrada
-00:03 +10: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/data/firestore_attendance_repository_test.dart: rechaza una salida duplicada
-00:03 +11: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/domain/attendance_day_test.dart: AttendanceDay usa el día anterior antes de medianoche en Lima
-00:03 +12: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/domain/attendance_day_test.dart: AttendanceDay cambia de día exactamente a medianoche en Lima
-00:03 +13: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/domain/attendance_day_test.dart: AttendanceDay construye un identificador determinista
-00:03 +14: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/domain/attendance_day_test.dart: AttendanceDay rechaza una fecha inexistente
-00:05 +15: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/presentation/attendance_history_screen_test.dart: muestra un estado vacío cuando no existen asistencias
-00:05 +16: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/presentation/attendance_history_screen_test.dart: muestra un estado vacío cuando no existen asistencias
-00:05 +17: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/presentation/attendance_history_screen_test.dart: muestra un estado vacío cuando no existen asistencias
-00:05 +18: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/presentation/attendance_history_screen_test.dart: muestra un estado vacío cuando no existen asistencias
-00:05 +19: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/presentation/attendance_history_screen_test.dart: muestra un estado vacío cuando no existen asistencias
-00:05 +20: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/presentation/attendance_history_screen_test.dart: muestra un estado vacío cuando no existen asistencias
-00:05 +21: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/presentation/attendance_history_screen_test.dart: muestra un estado vacío cuando no existen asistencias
-00:05 +22: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/presentation/attendance_history_screen_test.dart: muestra un estado vacío cuando no existen asistencias
-00:07 +23: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/presentation/attendance_history_screen_test.dart: muestra un estado vacío cuando no existen asistencias
-00:07 +24: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/presentation/attendance_history_screen_test.dart: muestra un estado vacío cuando no existen asistencias
-00:07 +25: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/presentation/attendance_history_screen_test.dart: muestra un estado vacío cuando no existen asistencias
-00:07 +26: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/presentation/attendance_history_screen_test.dart: muestra un estado vacío cuando no existen asistencias
-00:07 +27: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/presentation/attendance_history_screen_test.dart: muestra un estado vacío cuando no existen asistencias
-00:07 +28: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/presentation/attendance_history_screen_test.dart: muestra una jornada con entrada pendiente de salida
-00:08 +29: C:/Users/wilde/Downloads/control_asistencia/test/features/location/presentation/location_verification_card_test.dart: muestra ubicación permitida dentro del radio
-00:08 +30: C:/Users/wilde/Downloads/control_asistencia/test/features/location/presentation/location_verification_card_test.dart: muestra ubicación permitida dentro del radio
-00:08 +31: C:/Users/wilde/Downloads/control_asistencia/test/features/location/presentation/location_verification_card_test.dart: muestra ubicación permitida dentro del radio
-00:11 +32: C:/Users/wilde/Downloads/control_asistencia/test/widget_test.dart: muestra el formulario cuando no existe una sesión
-00:11 +33: C:/Users/wilde/Downloads/control_asistencia/test/widget_test.dart: muestra el formulario cuando no existe una sesión
-00:12 +34: All tests passed!
+00:00 +0: loading C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart
+00:00 +0: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:00 +1: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:00 +2: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:00 +3: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:00 +4: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:00 +5: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:00 +6: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:00 +7: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:02 +8: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:02 +9: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:02 +10: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:02 +11: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:02 +12: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:02 +13: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:02 +14: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:02 +15: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:04 +16: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:04 +17: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:04 +18: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:04 +19: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:04 +20: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:04 +21: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:04 +22: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:05 +23: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:06 +24: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:06 +25: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:06 +26: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:06 +27: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:06 +28: C:/Users/wilde/Downloads/control_asistencia/test/features/admin/presentation/admin_dashboard_screen_test.dart: administrador navega por todos los m├│dulos
+00:06 +29: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/presentation/attendance_history_screen_test.dart: muestra una jornada con entrada pendiente de salida
+00:06 +30: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/presentation/attendance_history_screen_test.dart: muestra una jornada completada con entrada y salida
+00:07 +31: C:/Users/wilde/Downloads/control_asistencia/test/features/attendance/presentation/attendance_history_screen_test.dart: muestra el error del repositorio y permite reintentar
+00:07 +32: C:/Users/wilde/Downloads/control_asistencia/test/features/location/presentation/location_verification_card_test.dart: muestra ubicaci├│n permitida dentro del radio
+00:09 +33: C:/Users/wilde/Downloads/control_asistencia/test/widget_test.dart: muestra el formulario cuando no existe una sesi├│n
+00:09 +34: C:/Users/wilde/Downloads/control_asistencia/test/widget_test.dart: muestra el formulario cuando no existe una sesi├│n
+00:10 +35: All tests passed!
 ExitCode: 0

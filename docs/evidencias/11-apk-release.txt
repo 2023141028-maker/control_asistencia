@@ -1,0 +1,5 @@
+APK release final
+Archivo: ControlAsistencia-1.0.0.apk
+Tamaño en bytes: 54065119
+SHA256: BABB6553EE134CA7DC42225E864AD4EF4EF08E36F26683D8719D53D78DDD7038
+Resultado: compilación release completada correctamente

@@ -101,16 +101,17 @@ Características:
 - Las reglas rechazan consultas sin límite.
 - Requiere el índice `userId ASC, workDate DESC`.
 
-### 2.5. Consulta administrativa prevista
+### 2.5. Consulta administrativa implementada
 
 ```text
 attendances
-  .where("officeId", isEqualTo: officeId)
-  .where("workDate", isEqualTo: workDate)
-  .orderBy("createdAt", descending: true)
+  .orderBy("workDate", descending: true)
+  .limit(50)
 ```
 
-El índice está preparado en `firestore.indexes.json`. La pantalla administrativa no forma parte del MVP móvil actual.
+`AdminAttendancesScreen` consume esta consulta, relaciona cada registro con el
+trabajador y la sede, y permite buscar por nombre, código, sede, estado o fecha.
+El detalle abre las evidencias protegidas de entrada y salida.
 
 ## 3. Operaciones CRUD
 
@@ -330,7 +331,7 @@ Cada error se transforma en un mensaje comprensible para el usuario.
 Resultado verificado:
 
 ```text
-34 pruebas aprobadas
+35 pruebas aprobadas
 ```
 
 ### 10.1. Distribución
@@ -344,7 +345,9 @@ Resultado verificado:
 | `firestore_attendance_repository_test.dart` | 4 | Entrada, salida y duplicidad |
 | `attendance_evidence_test.dart` | 7 | Ruta, JPEG, tamaño y UID |
 | `attendance_registration_service_test.dart` | 7 | Coordinación y compensación |
-| **Total** | **30** | |
+| `attendance_history_screen_test.dart` | 4 | Historial, estados y errores |
+| `admin_dashboard_screen_test.dart` | 1 | Navegación administrativa |
+| **Total** | **35** | |
 
 ### 10.2. Casos de geocerca
 
@@ -395,12 +398,19 @@ Resultado verificado:
 - Muestra una jornada con salida pendiente.
 - Muestra entrada y salida de una jornada completada.
 - Muestra errores del repositorio y la acción de reintento.
+
+### 10.8. Panel administrativo
+
+- Muestra el resumen operativo.
+- Permite navegar hacia personal, sedes y asistencias.
+- Relaciona trabajadores, sedes y jornadas visibles.
+
 ## 11. Pruebas de reglas Firestore
 
 Resultado:
 
 ```text
-22 pruebas aprobadas
+33 pruebas aprobadas
 ```
 
 Casos:
@@ -448,6 +458,28 @@ Casos:
 21. Permite consultar el documento diario propio aunque no exista.
 
 22. Impide consultar un documento inexistente ajeno.
+
+23. Permite al administrador listar perfiles.
+
+24. Impide al trabajador listar perfiles.
+
+25. Permite al administrador crear un perfil válido.
+
+26. Impide al trabajador crear perfiles.
+
+27. Permite al administrador actualizar un trabajador.
+
+28. Impide que el administrador cambie su propio rol.
+
+29. Permite al administrador crear una sede válida.
+
+30. Permite al administrador actualizar una sede.
+
+31. Impide al trabajador crear una sede.
+
+32. Impide eliminar perfiles y sedes.
+
+33. Impide asignar una sede inexistente a un trabajador activo.
 
 ## 12. Pruebas de reglas Storage
 
@@ -502,9 +534,9 @@ Casos:
 ## 13. Resultado total de reglas
 
 ```text
-22 pruebas Firestore
+33 pruebas Firestore
 20 pruebas Storage
-42 pruebas de reglas aprobadas
+53 pruebas de reglas aprobadas
 ```
 
 Comando reproducible:
@@ -519,7 +551,7 @@ firebase emulators:exec `
 Resultado esperado:
 
 ```text
-42 passing
+53 passing
 Script exited successfully (code 0)
 ```
 
@@ -668,7 +700,7 @@ Porque son registros de auditoría. Una eliminación destruiría la trazabilidad
 
 - Storage remoto puede requerir Blaze.
 - No existe reconocimiento facial.
-- No existe panel administrativo completo.
+- El panel administrativo es móvil; no se incluye un portal web independiente.
 - No se admiten múltiples turnos.
 - La detección de GPS simulado puede reforzarse con Play Integrity.
 - Se necesita definir una política institucional de retención.
@@ -690,6 +722,8 @@ El MVP se considera correcto cuando:
 - La jornada completada no vuelve a modificarse.
 - Las evidencias confirmadas son inmutables.
 - Otro trabajador no puede consultar los datos.
+- El administrador puede gestionar perfiles y sedes sin eliminar auditoría.
+- El administrador puede consultar asistencias y evidencias.
 - Las pruebas Flutter y Firebase finalizan correctamente.
 
 ## 19. Archivos verificables

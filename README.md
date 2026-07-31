@@ -34,12 +34,15 @@ Puede:
 
 Puede:
 
-- Consultar los perfiles registrados.
-- Consultar asistencias y evidencias.
+- Consultar, buscar, registrar y actualizar perfiles.
+- Crear cuentas de Authentication sin cerrar su propia sesión.
 - Activar o desactivar trabajadores.
-- Asignar una sede y un rol.
+- Asignar sedes y roles.
+- Crear, actualizar o desactivar sedes.
+- Consultar las asistencias recientes y sus evidencias fotográficas.
 
-La interfaz administrativa completa no forma parte del alcance actual del MVP. Estas operaciones están protegidas mediante reglas de seguridad.
+Estas operaciones se realizan desde un panel móvil exclusivo para el rol
+`admin` y también están protegidas mediante reglas de seguridad.
 
 ## Alcance del MVP
 
@@ -59,6 +62,10 @@ El MVP implementa:
 - Registro transaccional de entrada y salida.
 - Prevención de registros duplicados.
 - Consulta limitada del historial propio.
+- Recuperación de contraseña por correo.
+- Panel administrativo con resumen operativo.
+- Gestión de trabajadores y sedes.
+- Consulta global de asistencias y evidencias.
 - Reglas de seguridad para Firestore y Cloud Storage.
 - Pruebas unitarias, de widgets y de reglas con emuladores.
 

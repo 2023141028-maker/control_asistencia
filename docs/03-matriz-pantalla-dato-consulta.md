@@ -20,9 +20,10 @@ La finalidad es evitar asociar pantallas con operaciones genéricas que no exist
 flowchart TD
     A[AuthGate] --> B[LoginScreen]
     A --> C[ProfileGate]
-    C --> D[OfficeGate]
-    D --> E[HomeScreen]
-    E --> F[Ubicación y asistencia]
+    C --> D[Flujo trabajador]
+    C --> G[Panel administrador]
+    D --> E[OfficeGate]
+    E --> F[HomeScreen]
 ```
 
 No se permite llegar directamente a `HomeScreen`. Antes deben validarse:
@@ -43,6 +44,7 @@ No se permite llegar directamente a `HomeScreen`. Antes deben validarse:
 |---|---|---|---|---|
 | Comprobación de sesión | `AuthGate` | Usuario autenticado | Escuchar cambios de sesión | Firebase Authentication |
 | Inicio de sesión | `LoginScreen` | Correo y contraseña | `signInWithEmailAndPassword` | Firebase Authentication |
+| Recuperación de contraseña | `LoginScreen` | Correo | `sendPasswordResetEmail` | Firebase Authentication |
 | Carga de perfil | `ProfileGate` | UID de Authentication | Observar `users/{uid}` | Cloud Firestore |
 | Cuenta no autorizada | `ProfileGate` | Ausencia del documento | Resultado nulo del stream | Cloud Firestore |
 | Cuenta pendiente/inactiva | `ProfileGate` | `status` | Evaluación local del perfil autorizado | Modelo `UserProfile` |
@@ -59,6 +61,11 @@ No se permite llegar directamente a `HomeScreen`. Antes deben validarse:
 | Registrar salida | `AttendanceRegistrationService` | Jornada abierta, GPS y evidencia | Transacción de actualización | Cloud Firestore |
 | Jornada completada | `AttendanceRegistrationCard` | `status` y `checkOut` | Interpretación del documento diario | Modelo de dominio |
 | Historial personal | `AttendanceHistoryScreen` | UID del trabajador | Filtro, orden y límite | Cloud Firestore |
+| Resumen administrativo | `AdminDashboardScreen` | Usuarios, sedes y asistencias recientes | Tres streams limitados | Cloud Firestore |
+| Gestión de trabajadores | `AdminUsersScreen` | Perfil, rol, estado y sede | Listar, crear y actualizar | Authentication y Firestore |
+| Gestión de sedes | `AdminOfficesScreen` | Configuración geográfica | Listar, crear y actualizar | Cloud Firestore |
+| Control de asistencias | `AdminAttendancesScreen` | Trabajador, sede, jornada y marcas | Listado limitado y búsqueda local | Cloud Firestore |
+| Evidencia administrativa | `AdminAttendancesScreen` | `evidencePath` | Obtener URL protegida | Cloud Storage |
 | Cerrar sesión | AppBar/ProfileGate | Sesión actual | `signOut` | Firebase Authentication |
 
 ## 4. Pantalla de inicio de sesión

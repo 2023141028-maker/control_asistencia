@@ -16,11 +16,18 @@ const FIRESTORE_HOST = '127.0.0.1';
 const FIRESTORE_PORT = 8080;
 const OFFICE_ID = 'unh-pampas';
 
-const email = (
+const employeeEmail = (
   process.env.DEMO_EMAIL ?? 'empleado.demo@unh.edu.pe'
 ).trim().toLowerCase();
 
-const password = process.env.DEMO_PASSWORD ?? '';
+const employeePassword = process.env.DEMO_PASSWORD ?? '';
+
+const adminEmail = (
+  process.env.ADMIN_EMAIL ?? 'admin.demo@unh.edu.pe'
+).trim().toLowerCase();
+
+const adminPassword =
+  process.env.ADMIN_PASSWORD ?? employeePassword;
 
 async function readResponse(response) {
   const text = await response.text();
@@ -49,7 +56,7 @@ async function resetAuthEmulator() {
   }
 }
 
-async function createDemoAuthUser() {
+async function createAuthUser({ email, password }) {
   const url =
     `http://${AUTH_HOST}:${AUTH_PORT}/identitytoolkit.googleapis.com/` +
     'v1/accounts:signUp?key=demo-key';
@@ -80,9 +87,15 @@ async function createDemoAuthUser() {
 }
 
 async function main() {
-  if (password.length < 8) {
+  if (employeePassword.length < 8) {
     throw new Error(
       'DEMO_PASSWORD debe tener al menos 8 caracteres.',
+    );
+  }
+
+  if (adminPassword.length < 8) {
+    throw new Error(
+      'ADMIN_PASSWORD debe tener al menos 8 caracteres.',
     );
   }
 
@@ -90,7 +103,16 @@ async function main() {
 
   try {
     await resetAuthEmulator();
-    const uid = await createDemoAuthUser();
+
+    const employeeUid = await createAuthUser({
+      email: employeeEmail,
+      password: employeePassword,
+    });
+
+    const adminUid = await createAuthUser({
+      email: adminEmail,
+      password: adminPassword,
+    });
 
     testEnvironment = await initializeTestEnvironment({
       projectId: PROJECT_ID,
@@ -120,9 +142,9 @@ async function main() {
           updatedAt: now,
         }),
 
-        setDoc(doc(database, 'users', uid), {
-          uid,
-          email,
+        setDoc(doc(database, 'users', employeeUid), {
+          uid: employeeUid,
+          email: employeeEmail,
           fullName: 'Empleado Demo',
           employeeCode: 'EMP-DEMO-001',
           role: 'employee',
@@ -132,13 +154,28 @@ async function main() {
           createdAt: now,
           updatedAt: now,
         }),
+
+        setDoc(doc(database, 'users', adminUid), {
+          uid: adminUid,
+          email: adminEmail,
+          fullName: 'Administrador Demo',
+          employeeCode: 'ADM-DEMO-001',
+          role: 'admin',
+          status: 'active',
+          officeId: null,
+          schemaVersion: 1,
+          createdAt: now,
+          updatedAt: now,
+        }),
       ]);
     });
 
     console.log('');
     console.log('EMULADORES PREPARADOS CORRECTAMENTE');
-    console.log(`Correo local: ${email}`);
-    console.log(`UID local: ${uid}`);
+    console.log(`Correo trabajador: ${employeeEmail}`);
+    console.log(`UID trabajador: ${employeeUid}`);
+    console.log(`Correo administrador: ${adminEmail}`);
+    console.log(`UID administrador: ${adminUid}`);
     console.log(`Sede: ${OFFICE_ID}`);
   } finally {
     if (testEnvironment !== undefined) {

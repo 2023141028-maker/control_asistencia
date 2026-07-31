@@ -19,7 +19,7 @@ La siguiente matriz muestra cómo se atendieron las observaciones detectadas. El
 | 5 | Diccionario de datos | Se documentaron campos, tipos, obligatoriedad, nulabilidad, dominio, origen, ejemplo, validaciones y nivel de sensibilidad | [`02-modelo-y-diccionario.md`](02-modelo-y-diccionario.md) | 2.0 |
 | 6 | Matriz pantalla–dato–consulta | Cada pantalla se relacionó con componentes Flutter, datos, repositorios, consultas reales, reglas y estados de error | [`03-matriz-pantalla-dato-consulta.md`](03-matriz-pantalla-dato-consulta.md) | 2.0 |
 | 7 | Consultas del MVP y CRUD | Se implementaron lecturas en tiempo real, historial filtrado y limitado, creación y actualización transaccional, control de duplicidad, manejo de errores y compensación de Storage | Repositorios de `lib/features`, [`03-matriz-pantalla-dato-consulta.md`](03-matriz-pantalla-dato-consulta.md) y pruebas de reglas | 2.0 |
-| 8 | Datos de prueba, implementación y defensa | Se añadieron datos de demostración, emuladores reproducibles, 34 pruebas Flutter, 42 pruebas de reglas, capturas y una guía de defensa | [`04-pruebas-y-defensa.md`](04-pruebas-y-defensa.md) y carpeta [`evidencias`](evidencias) | 2.0 |
+| 8 | Datos de prueba, implementación y defensa | Se añadieron datos de demostración, emuladores reproducibles, 35 pruebas Flutter, 53 pruebas de reglas, capturas y una guía de defensa | [`04-pruebas-y-defensa.md`](04-pruebas-y-defensa.md) y carpeta [`evidencias`](evidencias) | 2.0 |
 |  | **Total objetivo** |  |  | **20.0** |
 
 ## 3. Justificación del gestor Firebase
@@ -74,7 +74,8 @@ Storage y Firestore son servicios independientes y no comparten una única trans
 
 - El GPS de un teléfono no garantiza por sí solo la identidad física del trabajador.
 - La detección de ubicación simulada reduce el fraude, pero no elimina todos los ataques posibles.
-- La interfaz administrativa completa está fuera del MVP.
+- El panel administrativo está orientado a móvil; no existe un portal web
+  independiente.
 - La asistencia requiere conexión al servidor.
 - Las reglas deben mantenerse sincronizadas con el modelo de datos.
 - Las evidencias fotográficas incrementan almacenamiento, transferencia y consideraciones de privacidad.
@@ -93,6 +94,10 @@ Storage y Firestore son servicios independientes y no comparten una única trans
 | Fotografías | `ImagePickerEvidenceCamera` y `FirebaseEvidenceRepository` |
 | Registro de jornada | `AttendanceRegistrationCard` |
 | Historial | `AttendanceHistoryScreen` |
+| Administración | `AdminDashboardScreen` y `FirebaseAdminRepository` |
+| Personal | `AdminUsersScreen` |
+| Sedes administrativas | `AdminOfficesScreen` |
+| Auditoría de asistencias | `AdminAttendancesScreen` |
 | Seguridad | `firestore.rules` y `storage.rules` |
 | Entorno local | Firebase Emulator Suite y `seed-demo.js` |
 
@@ -101,10 +106,10 @@ Storage y Firestore son servicios independientes y no comparten una única trans
 | Verificación | Resultado | Evidencia |
 |---|---|---|
 | `flutter analyze` | Sin problemas; código de salida 0 | [`07-flutter-analyze.txt`](evidencias/07-flutter-analyze.txt) |
-| `flutter test` | 34 pruebas aprobadas; código de salida 0 | [`08-flutter-test.txt`](evidencias/08-flutter-test.txt) |
-| Reglas de Firestore | 22 pruebas aprobadas | [`10-pruebas-reglas-firebase.txt`](evidencias/10-pruebas-reglas-firebase.txt) |
+| `flutter test` | 35 pruebas aprobadas; código de salida 0 | [`08-flutter-test.txt`](evidencias/08-flutter-test.txt) |
+| Reglas de Firestore | 33 pruebas aprobadas | [`10-pruebas-reglas-firebase.txt`](evidencias/10-pruebas-reglas-firebase.txt) |
 | Reglas de Storage | 20 pruebas aprobadas | [`10-pruebas-reglas-firebase.txt`](evidencias/10-pruebas-reglas-firebase.txt) |
-| Total de reglas Firebase | 42 pruebas aprobadas; código de salida 0 | [`10-pruebas-reglas-firebase.txt`](evidencias/10-pruebas-reglas-firebase.txt) |
+| Total de reglas Firebase | 53 pruebas aprobadas; código de salida 0 | [`10-pruebas-reglas-firebase.txt`](evidencias/10-pruebas-reglas-firebase.txt) |
 | Evolución del proyecto | Historial incremental desde el proyecto limpio | [`09-historial-git.txt`](evidencias/09-historial-git.txt) |
 
 ## 6. Evidencias visuales

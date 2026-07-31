@@ -30,6 +30,23 @@ class FirebaseAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<void> sendPasswordResetEmail({required String email}) async {
+    final normalizedEmail = email.trim().toLowerCase();
+
+    if (normalizedEmail.isEmpty) {
+      throw const AuthFailure('Ingresa tu correo electrónico.');
+    }
+
+    try {
+      await _firebaseAuth.sendPasswordResetEmail(email: normalizedEmail);
+    } on FirebaseAuthException catch (error) {
+      throw AuthFailure(_messageForPasswordResetCode(error.code));
+    } catch (_) {
+      throw const AuthFailure('No se pudo enviar el correo de recuperación.');
+    }
+  }
+
+  @override
   Future<void> signOut() async {
     try {
       await _firebaseAuth.signOut();
@@ -50,6 +67,18 @@ class FirebaseAuthRepository implements AuthRepository {
       'network-request-failed' =>
         'No se pudo conectar. Revisa tu conexión a Internet.',
       _ => 'No fue posible iniciar sesión.',
+    };
+  }
+
+  static String _messageForPasswordResetCode(String code) {
+    return switch (code) {
+      'invalid-email' => 'El correo electrónico no es válido.',
+      'user-disabled' => 'Esta cuenta se encuentra deshabilitada.',
+      'too-many-requests' =>
+        'Demasiados intentos. Espera unos minutos e inténtalo nuevamente.',
+      'network-request-failed' =>
+        'No se pudo conectar. Revisa tu conexión a Internet.',
+      _ => 'No se pudo enviar el correo de recuperación.',
     };
   }
 }

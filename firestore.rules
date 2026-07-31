@@ -85,6 +85,23 @@ service cloud.firestore {
         data.updatedAt is timestamp;
     }
 
+    function validUserOfficeAssignment(data) {
+      return data.officeId == null ||
+        (
+          data.officeId is string &&
+          exists(
+            /databases/$(database)/documents/offices/$(data.officeId)
+          ) &&
+          (
+            data.role == 'admin' ||
+            data.status != 'active' ||
+            get(
+              /databases/$(database)/documents/offices/$(data.officeId)
+            ).data.active == true
+          )
+        );
+    }
+
     function canReadOffice(officeId) {
       return isActiveAdmin() ||
         (
@@ -293,11 +310,13 @@ service cloud.firestore {
 
       allow create: if isActiveAdmin() &&
         validUserData(userId, request.resource.data) &&
+        validUserOfficeAssignment(request.resource.data) &&
         request.resource.data.createdAt == request.time &&
         request.resource.data.updatedAt == request.time;
 
       allow update: if isActiveAdmin() &&
         validUserData(userId, request.resource.data) &&
+        validUserOfficeAssignment(request.resource.data) &&
         request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'fullName',
           'employeeCode',

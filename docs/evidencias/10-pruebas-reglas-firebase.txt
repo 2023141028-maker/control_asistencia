@@ -1,8 +1,8 @@
-i  emulators: Starting emulators: firestore, storage
-i  firestore: Firestore Emulator logging to firestore-debug.log
-+  firestore: Firestore Emulator was started in standard edition.
-+  firestore: Firestore Emulator UI websocket is running on 9150.
-i  Running script: npm --prefix firebase-tests test
+[36m[1mi  emulators:[22m[39m Starting emulators: firestore, storage
+[36m[1mi  firestore:[22m[39m Firestore Emulator logging to [1mfirestore-debug.log[22m
+[32m[1m+  firestore:[22m[39m Firestore Emulator was started in standard edition.
+[32m[1m+  firestore:[22m[39m Firestore Emulator UI websocket is running on 9150.
+[36m[1mi [22m[39m Running script: [1mnpm --prefix firebase-tests test[22m
 
 > firebase-tests@1.0.0 test
 > mocha --timeout 30000 test/**/*.test.js
@@ -10,85 +10,148 @@ i  Running script: npm --prefix firebase-tests test
 
 
   Reglas de seguridad de asistencias
-[2026-07-30T23:35:36.090Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x7950f520 error. Code: 7 Message: 7 PERMISSION_DENIED: 
-false for 'create' @ L359, false for 'create' @ L413, false for 'update' @ L381, false for 'update' @ L413
-    [OK] 01 rechaza usuario no autenticado (794ms)
-[2026-07-30T23:35:36.700Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x7950f522 error. Code: 7 Message: 7 PERMISSION_DENIED: 
-evaluation error at L359:9 for 'create' @ L359, false for 'create' @ L413, evaluation error at L381:9 for 'update' @ L381, false for 'update' @ L413, false for 'create' @ L359, false for 'create' @ L413
-    [OK] 02 rechaza trabajador inactivo (376ms)
-    [OK] 03 permite entrada válida (179ms)
-[2026-07-30T23:35:37.205Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x7950f526 error. Code: 7 Message: 7 PERMISSION_DENIED: 
-evaluation error at L359:9 for 'create' @ L359, false for 'create' @ L413, evaluation error at L381:9 for 'update' @ L381, false for 'update' @ L413, false for 'create' @ L359, false for 'create' @ L413
-    [OK] 04 rechaza sede no asignada (108ms)
-[2026-07-30T23:35:37.489Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x7950f528 error. Code: 7 Message: 7 PERMISSION_DENIED: 
-evaluation error at L359:9 for 'create' @ L359, false for 'create' @ L413, evaluation error at L381:9 for 'update' @ L381, false for 'update' @ L413, false for 'create' @ L359, false for 'create' @ L413
-    [OK] 05 rechaza GPS simulado (165ms)
-[2026-07-30T23:35:37.881Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x7950f52a error. Code: 7 Message: 7 PERMISSION_DENIED: 
-evaluation error at L359:9 for 'create' @ L359, false for 'create' @ L413, evaluation error at L381:9 for 'update' @ L381, false for 'update' @ L413, false for 'create' @ L359, false for 'create' @ L413
-    [OK] 06 rechaza precisión insuficiente (260ms)
-[2026-07-30T23:35:38.205Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x7950f52c error. Code: 7 Message: 7 PERMISSION_DENIED: 
-evaluation error at L359:9 for 'create' @ L359, false for 'create' @ L413, evaluation error at L381:9 for 'update' @ L381, false for 'update' @ L413, false for 'create' @ L359, false for 'create' @ L413
-    [OK] 07 rechaza coordenadas lejanas con distancia declarada cero (198ms)
-[2026-07-30T23:35:38.504Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x7950f52e error. Code: 7 Message: 7 PERMISSION_DENIED: 
-evaluation error at L359:9 for 'create' @ L359, false for 'create' @ L413, evaluation error at L381:9 for 'update' @ L381, false for 'update' @ L413, false for 'create' @ L359, false for 'create' @ L413
-    [OK] 08 rechaza distancia que no coincide con las coordenadas (172ms)
-[2026-07-30T23:35:38.707Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x7950f530 error. Code: 7 Message: 7 PERMISSION_DENIED: 
-evaluation error at L359:9 for 'create' @ L359, false for 'create' @ L413, evaluation error at L381:9 for 'update' @ L381, false for 'update' @ L413, false for 'create' @ L359, false for 'create' @ L413
-    [OK] 09 rechaza ruta de evidencia incorrecta (102ms)
-[2026-07-30T23:35:38.951Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x7950f532 error. Code: 7 Message: 7 PERMISSION_DENIED: 
-evaluation error at L359:9 for 'create' @ L359, false for 'create' @ L413, evaluation error at L381:9 for 'update' @ L381, false for 'update' @ L413, false for 'update' @ L381, false for 'update' @ L413
-    [OK] 10 rechaza entrada duplicada (148ms)
-[2026-07-30T23:35:39.133Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x7950f534 error. Code: 7 Message: 7 PERMISSION_DENIED: 
-evaluation error at L359:9 for 'create' @ L359, false for 'create' @ L413, evaluation error at L381:9 for 'update' @ L381, false for 'update' @ L413, false for 'create' @ L359, false for 'create' @ L413
-    [OK] 11 rechaza salida sin entrada previa (98ms)
-    [OK] 12 permite una salida válida (251ms)
-[2026-07-30T23:35:39.888Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x7950f53a error. Code: 7 Message: 7 PERMISSION_DENIED: 
-evaluation error at L381:9 for 'update' @ L381, false for 'update' @ L413, false for 'update' @ L381, false for 'update' @ L413
-    [OK] 13 impide modificar la entrada al registrar salida (296ms)
-[2026-07-30T23:35:40.240Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x7950f53d error. Code: 7 Message: 7 PERMISSION_DENIED: 
-evaluation error at L381:9 for 'update' @ L381, false for 'update' @ L413, false for 'update' @ L381, false for 'update' @ L413
-    [OK] 14 rechaza una segunda salida (248ms)
-[2026-07-30T23:35:40.669Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x7950f540 error. Code: 7 Message: 7 PERMISSION_DENIED: 
-false for 'delete' @ L409, false for 'delete' @ L413
-    [OK] 15 impide eliminar una asistencia (261ms)
-    [OK] 16 permite al propietario leer su asistencia (560ms)
-    [OK] 17 impide que otro trabajador lea la asistencia (455ms)
-    [OK] 18 permite lectura al administrador activo (245ms)
-    [OK] 19 permite historial propio con filtro y límite (668ms)
-    [OK] 20 rechaza historial sin límite (242ms)
-    [OK] 21 permite consultar el documento diario propio aunque no exista (163ms)
-    [OK] 22 impide consultar un documento diario inexistente ajeno (107ms)
+node.exe : [2026-07-31T03:25:15.214Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream
+0x6ebb6e75 error. Code: 7 Message: 7 PERMISSION_DENIED:
+En C:\Users\wilde\AppData\Roaming\npm\firebase.ps1: 24 Carácter: 5
++     & "node$exe"  "$basedir/node_modules/firebase-tools/lib/bin/fireb ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([2026-07-31T03:...ISSION_DENIED: :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
 
-  Reglas de seguridad de evidencias fotográficas
-    [OK] 01 rechaza carga sin autenticación (1515ms)
-    [OK] 02 rechaza trabajador inactivo (515ms)
-    [OK] 03 permite JPEG válido del propietario (225ms)
-    [OK] 04 rechaza carga en una ruta ajena
-    [OK] 05 rechaza contenido que no sea JPEG (81ms)
-    [OK] 06 rechaza evidencia mayor de 2 MB (252ms)
-    [OK] 07 rechaza evidencia vacía (114ms)
-    [OK] 08 rechaza sede incorrecta (134ms)
-    [OK] 09 rechaza nombre no autorizado (111ms)
-    [OK] 10 impide sobrescribir una fotografía (186ms)
-    [OK] 11 permite lectura al propietario (180ms)
-    [OK] 12 impide lectura a otro trabajador (182ms)
-    [OK] 13 permite lectura al administrador (184ms)
-    [OK] 14 impide modificar metadatos (136ms)
-    [OK] 15 permite limpiar entrada no confirmada (182ms)
-    [OK] 16 impide eliminar entrada confirmada (246ms)
-    [OK] 17 rechaza salida sin entrada abierta (96ms)
-    [OK] 18 permite salida con entrada abierta (258ms)
-    [OK] 19 permite limpiar salida no confirmada (405ms)
-    [OK] 20 impide eliminar salida confirmada (587ms)
+false for 'create' @ L378, false for 'create' @ L432, false for 'update' @ L400, false for 'update' @ L432
+    ÔêÜ 01 rechaza usuario no autenticado (705ms)
+[2026-07-31T03:25:15.749Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x6ebb6e77
+error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L378:9 for 'create' @ L378, false for 'create' @ L432, evaluation error at L400:9 for 'update' @
+L400, false for 'update' @ L432, false for 'create' @ L378, false for 'create' @ L432
+    ÔêÜ 02 rechaza trabajador inactivo (339ms)
+    ÔêÜ 03 permite entrada v├ílida (153ms)
+[2026-07-31T03:25:16.258Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x6ebb6e7b
+error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L378:9 for 'create' @ L378, false for 'create' @ L432, evaluation error at L400:9 for 'update' @
+L400, false for 'update' @ L432, false for 'create' @ L378, false for 'create' @ L432
+    ÔêÜ 04 rechaza sede no asignada (156ms)
+[2026-07-31T03:25:16.569Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x6ebb6e7d
+error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L378:9 for 'create' @ L378, false for 'create' @ L432, evaluation error at L400:9 for 'update' @
+L400, false for 'update' @ L432, false for 'create' @ L378, false for 'create' @ L432
+    ÔêÜ 05 rechaza GPS simulado (162ms)
+[2026-07-31T03:25:16.886Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x6ebb6e7f
+error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L378:9 for 'create' @ L378, false for 'create' @ L432, evaluation error at L400:9 for 'update' @
+L400, false for 'update' @ L432, false for 'create' @ L378, false for 'create' @ L432
+    ÔêÜ 06 rechaza precisi├│n insuficiente (169ms)
+[2026-07-31T03:25:17.247Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x6ebb6e81
+error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L378:9 for 'create' @ L378, false for 'create' @ L432, evaluation error at L400:9 for 'update' @
+L400, false for 'update' @ L432, false for 'create' @ L378, false for 'create' @ L432
+    ÔêÜ 07 rechaza coordenadas lejanas con distancia declarada cero (223ms)
+[2026-07-31T03:25:17.541Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x6ebb6e83
+error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L378:9 for 'create' @ L378, false for 'create' @ L432, evaluation error at L400:9 for 'update' @
+L400, false for 'update' @ L432, false for 'create' @ L378, false for 'create' @ L432
+    ÔêÜ 08 rechaza distancia que no coincide con las coordenadas (149ms)
+[2026-07-31T03:25:17.755Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x6ebb6e85
+error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L378:9 for 'create' @ L378, false for 'create' @ L432, evaluation error at L400:9 for 'update' @
+L400, false for 'update' @ L432, false for 'create' @ L378, false for 'create' @ L432
+    ÔêÜ 09 rechaza ruta de evidencia incorrecta (122ms)
+[2026-07-31T03:25:17.974Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x6ebb6e87
+error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L378:9 for 'create' @ L378, false for 'create' @ L432, evaluation error at L400:9 for 'update' @
+L400, false for 'update' @ L432, false for 'update' @ L400, false for 'update' @ L432
+    ÔêÜ 10 rechaza entrada duplicada (127ms)
+[2026-07-31T03:25:18.155Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x6ebb6e89
+error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L378:9 for 'create' @ L378, false for 'create' @ L432, evaluation error at L400:9 for 'update' @
+L400, false for 'update' @ L432, false for 'create' @ L378, false for 'create' @ L432
+    ÔêÜ 11 rechaza salida sin entrada previa (93ms)
+    ÔêÜ 12 permite una salida v├ílida (250ms)
+[2026-07-31T03:25:18.863Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x6ebb6e8f
+error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L400:9 for 'update' @ L400, false for 'update' @ L432, false for 'update' @ L400, false for
+'update' @ L432
+    ÔêÜ 13 impide modificar la entrada al registrar salida (222ms)
+[2026-07-31T03:25:19.217Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x6ebb6e92
+error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L400:9 for 'update' @ L400, false for 'update' @ L432, false for 'update' @ L400, false for
+'update' @ L432
+    ÔêÜ 14 rechaza una segunda salida (240ms)
+[2026-07-31T03:25:19.512Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x6ebb6e95
+error. Code: 7 Message: 7 PERMISSION_DENIED:
+false for 'delete' @ L428, false for 'delete' @ L432
+    ÔêÜ 15 impide eliminar una asistencia (176ms)
+    ÔêÜ 16 permite al propietario leer su asistencia (342ms)
+    ÔêÜ 17 impide que otro trabajador lea la asistencia (288ms)
+    ÔêÜ 18 permite lectura al administrador activo (192ms)
+    ÔêÜ 19 permite historial propio con filtro y l├¡mite (451ms)
+    ÔêÜ 20 rechaza historial sin l├¡mite (163ms)
+    ÔêÜ 21 permite consultar el documento diario propio aunque no exista (70ms)
+    ÔêÜ 22 impide consultar un documento diario inexistente ajeno (135ms)
+    ÔêÜ 23 permite al administrador listar perfiles (145ms)
+    ÔêÜ 24 impide al trabajador listar perfiles (124ms)
+    ÔêÜ 25 permite al administrador crear un perfil v├ílido (128ms)
+[2026-07-31T03:25:23.050Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x6ebb6eb0
+error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L311:24 for 'create' @ L311, false for 'create' @ L432, evaluation error at L317:24 for 'update' @
+L317, false for 'update' @ L432, false for 'create' @ L311, false for 'create' @ L432
+    ÔêÜ 26 impide al trabajador crear perfiles (101ms)
+    ÔêÜ 27 permite al administrador actualizar un trabajador (54ms)
+[2026-07-31T03:25:23.374Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x6ebb6eb4
+error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L317:24 for 'update' @ L317, false for 'update' @ L432, false for 'update' @ L317, false for
+'update' @ L432
+    ÔêÜ 28 impide que el administrador cambie su propio rol (73ms)
+    ÔêÜ 29 permite al administrador crear una sede v├ílida (77ms)
+    ÔêÜ 30 permite al administrador actualizar una sede (79ms)
+[2026-07-31T03:25:23.931Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x6ebb6eba
+error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L344:24 for 'create' @ L344, false for 'create' @ L432, evaluation error at L349:24 for 'update' @
+L349, false for 'update' @ L432, false for 'create' @ L344, false for 'create' @ L432
+    ÔêÜ 31 impide al trabajador crear una sede (78ms)
+[2026-07-31T03:25:24.067Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x6ebb6ebc
+error. Code: 7 Message: 7 PERMISSION_DENIED:
+false for 'delete' @ L337, false for 'delete' @ L432
+[2026-07-31T03:25:24.091Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x6ebb6ebd
+error. Code: 7 Message: 7 PERMISSION_DENIED:
+false for 'delete' @ L363, false for 'delete' @ L432
+    ÔêÜ 32 impide eliminar perfiles y sedes (71ms)
+[2026-07-31T03:25:24.274Z]  @firebase/firestore: Firestore (12.16.0): GrpcConnection RPC 'Write' stream 0x6ebb6ebf
+error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L311:24 for 'create' @ L311, false for 'create' @ L432, evaluation error at L317:24 for 'update' @
+L317, false for 'update' @ L432, false for 'create' @ L311, false for 'create' @ L432
+    ÔêÜ 33 impide asignar una sede inexistente a un trabajador activo (89ms)
+
+  Reglas de seguridad de evidencias fotogr├íficas
+    ÔêÜ 01 rechaza carga sin autenticaci├│n (441ms)
+    ÔêÜ 02 rechaza trabajador inactivo (166ms)
+    ÔêÜ 03 permite JPEG v├ílido del propietario (178ms)
+    ÔêÜ 04 rechaza carga en una ruta ajena
+    ÔêÜ 05 rechaza contenido que no sea JPEG (66ms)
+    ÔêÜ 06 rechaza evidencia mayor de 2 MB (175ms)
+    ÔêÜ 07 rechaza evidencia vac├¡a (85ms)
+    ÔêÜ 08 rechaza sede incorrecta (113ms)
+    ÔêÜ 09 rechaza nombre no autorizado (94ms)
+    ÔêÜ 10 impide sobrescribir una fotograf├¡a (116ms)
+    ÔêÜ 11 permite lectura al propietario (172ms)
+    ÔêÜ 12 impide lectura a otro trabajador (189ms)
+    ÔêÜ 13 permite lectura al administrador (158ms)
+    ÔêÜ 14 impide modificar metadatos (153ms)
+    ÔêÜ 15 permite limpiar entrada no confirmada (167ms)
+    ÔêÜ 16 impide eliminar entrada confirmada (256ms)
+    ÔêÜ 17 rechaza salida sin entrada abierta (104ms)
+    ÔêÜ 18 permite salida con entrada abierta (281ms)
+    ÔêÜ 19 permite limpiar salida no confirmada (380ms)
+    ÔêÜ 20 impide eliminar salida confirmada (408ms)
 
 
-  42 passing (28s)
+  53 passing (25s)
 
-+  Script exited successfully (code 0)
-i  emulators: Shutting down emulators.
-i  firestore: Stopping Firestore Emulator
-!  Firestore Emulator has exited upon receiving signal: SIGINT
-i  storage: Stopping Storage Emulator
-i  hub: Stopping emulator hub
-i  logging: Stopping Logging Emulator
+[32m[1m+ [22m[39m Script exited successfully (code 0)
+[36m[1mi  emulators:[22m[39m Shutting down emulators.
+[36m[1mi  firestore:[22m[39m Stopping Firestore Emulator
+[33m[1m! [22m[39m Firestore Emulator has exited upon receiving signal: SIGINT
+[36m[1mi  storage:[22m[39m Stopping Storage Emulator
+[36m[1mi  hub:[22m[39m Stopping emulator hub
+[36m[1mi  logging:[22m[39m Stopping Logging Emulator
 ExitCode: 0

@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../admin/data/firebase_admin_repository.dart';
+import '../../admin/presentation/admin_dashboard_screen.dart';
 import '../../auth/domain/auth_repository.dart';
 import '../../offices/domain/office_repository.dart';
 import '../../offices/presentation/office_gate.dart';
@@ -27,10 +29,12 @@ class ProfileGate extends StatefulWidget {
 
 class _ProfileGateState extends State<ProfileGate> {
   late Stream<UserProfile?> _profileStream;
+  late final FirebaseAdminRepository _adminRepository;
 
   @override
   void initState() {
     super.initState();
+    _adminRepository = FirebaseAdminRepository();
     _profileStream = _watchProfile();
   }
 
@@ -111,7 +115,13 @@ class _ProfileGateState extends State<ProfileGate> {
 
         return switch (profile.status) {
           UserStatus.active =>
-            profile.officeId == null
+            profile.isAdmin
+                ? AdminDashboardScreen(
+                    profile: profile,
+                    authRepository: widget.authRepository,
+                    adminRepository: _adminRepository,
+                  )
+                : profile.officeId == null
                 ? _AccessStateScreen(
                     icon: Icons.business_outlined,
                     title: 'Sin sede asignada',

@@ -49,6 +49,90 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<void> _resetPassword() async {
+    final emailController = TextEditingController(
+      text: _emailController.text.trim(),
+    );
+    final formKey = GlobalKey<FormState>();
+
+    final email = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Recuperar contraseña'),
+        content: Form(
+          key: formKey,
+          child: TextFormField(
+            controller: emailController,
+            autofocus: true,
+            keyboardType: TextInputType.emailAddress,
+            decoration: const InputDecoration(
+              labelText: 'Correo electrónico',
+              prefixIcon: Icon(Icons.email_outlined),
+            ),
+            validator: (value) {
+              final normalized = value?.trim() ?? '';
+
+              if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(normalized)) {
+                return 'Ingresa un correo válido.';
+              }
+
+              return null;
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () {
+              if (formKey.currentState!.validate()) {
+                Navigator.of(context).pop(emailController.text.trim());
+              }
+            },
+            child: const Text('Enviar'),
+          ),
+        ],
+      ),
+    );
+
+    emailController.dispose();
+
+    if (email == null || !mounted) {
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await widget.authRepository.sendPasswordResetEmail(email: email);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Si la cuenta existe, recibirás instrucciones en tu correo.',
+          ),
+        ),
+      );
+    } on AuthFailure catch (error) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.message),
+          backgroundColor: Colors.red.shade700,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -186,6 +270,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                     : 'Iniciar sesión',
                               ),
                             ),
+                          ),
+                          const SizedBox(height: 8),
+                          TextButton(
+                            onPressed: _isLoading ? null : _resetPassword,
+                            child: const Text('¿Olvidaste tu contraseña?'),
                           ),
                           const SizedBox(height: 16),
                           const Text(

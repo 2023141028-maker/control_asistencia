@@ -57,7 +57,9 @@ Es responsable de:
 - Consultar evidencias cuando corresponda.
 - Mantener la configuración geográfica de las sedes.
 
-La interfaz administrativa completa queda fuera del alcance del MVP móvil, pero sus permisos y restricciones están contemplados en el modelo y en las reglas de seguridad.
+Estas funciones se encuentran implementadas en un panel móvil exclusivo para
+cuentas con rol `admin`. Las mismas restricciones se validan nuevamente en
+Firestore y Storage.
 
 ## 3. Objetivo del MVP
 
@@ -99,6 +101,11 @@ Implementar un sistema móvil capaz de registrar una jornada diaria por trabajad
 - Prevención de duplicidad.
 - Consulta de la jornada diaria.
 - Consulta limitada del historial propio.
+- Recuperación de contraseña por correo.
+- Panel administrativo con métricas operativas.
+- Registro y actualización de trabajadores.
+- Creación y actualización de sedes.
+- Consulta administrativa de asistencias y evidencias.
 - Reglas de seguridad de Firestore.
 - Reglas de seguridad de Storage.
 - Pruebas automatizadas con Firebase Emulator Suite.
@@ -128,6 +135,7 @@ Estos elementos pueden implementarse en versiones futuras sin modificar la final
 | Geocerca | Calcular distancia y decidir si la ubicación es válida |
 | Evidencia | Capturar, validar, subir y eliminar fotografías temporales |
 | Asistencia | Registrar entrada, salida y consultar jornada |
+| Administración | Gestionar trabajadores, sedes y asistencias |
 | Seguridad | Restringir datos mediante reglas de Firestore y Storage |
 | Emuladores | Reproducir Authentication, Firestore y Storage localmente |
 | Pruebas | Validar dominio, widgets, repositorios y reglas |

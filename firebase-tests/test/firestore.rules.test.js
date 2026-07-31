@@ -458,4 +458,169 @@ describe("Reglas de seguridad de asistencias", function () {
       getDoc(attendanceRef(database)),
     );
   });
+
+  it("23 permite al administrador listar perfiles", async () => {
+    const database = authenticatedDb(ADMIN_ID);
+
+    await assertSucceeds(
+      getDocs(
+        query(
+          collection(database, "users"),
+          orderBy("fullName"),
+          limit(100),
+        ),
+      ),
+    );
+  });
+
+  it("24 impide al trabajador listar perfiles", async () => {
+    const database = authenticatedDb(USER_ID);
+
+    await assertFails(
+      getDocs(
+        query(
+          collection(database, "users"),
+          orderBy("fullName"),
+          limit(100),
+        ),
+      ),
+    );
+  });
+
+  it("25 permite al administrador crear un perfil válido", async () => {
+    const database = authenticatedDb(ADMIN_ID);
+    const newUserId = "employee-new";
+
+    await assertSucceeds(
+      setDoc(
+        doc(database, "users", newUserId),
+        {
+          ...profile(newUserId),
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        },
+      ),
+    );
+  });
+
+  it("26 impide al trabajador crear perfiles", async () => {
+    const database = authenticatedDb(USER_ID);
+    const newUserId = "employee-forbidden";
+
+    await assertFails(
+      setDoc(
+        doc(database, "users", newUserId),
+        {
+          ...profile(newUserId),
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        },
+      ),
+    );
+  });
+
+  it("27 permite al administrador actualizar un trabajador", async () => {
+    const database = authenticatedDb(ADMIN_ID);
+
+    await assertSucceeds(
+      updateDoc(
+        doc(database, "users", USER_ID),
+        {
+          fullName: "Trabajador Actualizado",
+          status: "inactive",
+          updatedAt: serverTimestamp(),
+        },
+      ),
+    );
+  });
+
+  it("28 impide que el administrador cambie su propio rol", async () => {
+    const database = authenticatedDb(ADMIN_ID);
+
+    await assertFails(
+      updateDoc(
+        doc(database, "users", ADMIN_ID),
+        {
+          role: "employee",
+          updatedAt: serverTimestamp(),
+        },
+      ),
+    );
+  });
+
+  it("29 permite al administrador crear una sede válida", async () => {
+    const database = authenticatedDb(ADMIN_ID);
+
+    await assertSucceeds(
+      setDoc(
+        doc(database, "offices", "sede-nueva"),
+        {
+          ...office(-12.38, -74.85),
+          name: "Sede nueva",
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        },
+      ),
+    );
+  });
+
+  it("30 permite al administrador actualizar una sede", async () => {
+    const database = authenticatedDb(ADMIN_ID);
+
+    await assertSucceeds(
+      updateDoc(
+        doc(database, "offices", OFFICE_ID),
+        {
+          radiusMeters: 120,
+          updatedAt: serverTimestamp(),
+        },
+      ),
+    );
+  });
+
+  it("31 impide al trabajador crear una sede", async () => {
+    const database = authenticatedDb(USER_ID);
+
+    await assertFails(
+      setDoc(
+        doc(database, "offices", "sede-prohibida"),
+        {
+          ...office(-12.38, -74.85),
+          name: "Sede prohibida",
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        },
+      ),
+    );
+  });
+
+  it("32 impide eliminar perfiles y sedes", async () => {
+    const database = authenticatedDb(ADMIN_ID);
+
+    await assertFails(
+      deleteDoc(doc(database, "users", USER_ID)),
+    );
+
+    await assertFails(
+      deleteDoc(doc(database, "offices", OFFICE_ID)),
+    );
+  });
+
+  it("33 impide asignar una sede inexistente a un trabajador activo", async () => {
+    const database = authenticatedDb(ADMIN_ID);
+    const newUserId = "employee-invalid-office";
+
+    await assertFails(
+      setDoc(
+        doc(database, "users", newUserId),
+        {
+          ...profile(newUserId, {
+            officeId: "sede-inexistente",
+          }),
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        },
+      ),
+    );
+  });
 });
