@@ -1,0 +1,70 @@
+name: Generar APK Android
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-apk:
+    name: Compilar APK 1.6.0
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v6
+
+      - name: Configurar Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Configurar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.44.4'
+          cache: true
+
+      - name: Instalar dependencias
+        run: flutter pub get
+
+      - name: Analizar código
+        run: flutter analyze
+
+      - name: Ejecutar pruebas
+        run: flutter test
+
+      - name: Compilar APK release para evaluación
+        run: |
+          flutter build apk --release \
+            --dart-define=CLOUDINARY_CLOUD_NAME=cknvvuug \
+            --dart-define=CLOUDINARY_UNSIGNED_UPLOAD_PRESET=attendance_evidence_unsigned
+
+      - name: Preparar entrega y checksum
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp build/app/outputs/flutter-apk/app-release.apk \
+            dist/control-asistencia-1.6.0-android.apk
+          sha256sum dist/control-asistencia-1.6.0-android.apk \
+            > dist/control-asistencia-1.6.0-android.sha256.txt
+          ls -lh dist
+
+      - name: Guardar APK para el docente
+        uses: actions/upload-artifact@v4
+        with:
+          name: control-asistencia-1.6.0-android
+          path: dist/
+          if-no-files-found: error
+          retention-days: 30
