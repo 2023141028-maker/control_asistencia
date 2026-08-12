@@ -13,12 +13,38 @@ permissions:
   contents: read
 
 jobs:
+  validate-flutter:
+    name: Analizar y probar Flutter
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v6
+
+      - name: Configurar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.44.4'
+          cache: true
+
+      - name: Instalar dependencias
+        run: flutter pub get
+
+      - name: Analizar código
+        run: flutter analyze
+
+      - name: Ejecutar pruebas
+        run: flutter test
+
   build-ios:
-    name: Analizar, probar y compilar iOS
+    name: Compilar y ejecutar iOS
+    needs: validate-flutter
     # ML Kit todavía requiere x86_64 para el simulador de iOS 26.
     runs-on: macos-26-intel
-    # En el runner Intel, las pruebas y la primera compilación nativa de OpenCV,
-    # Firebase y ML Kit pueden superar una hora sin caché.
+    # En el runner Intel, la primera compilación nativa de OpenCV, Firebase y
+    # ML Kit puede superar una hora sin caché.
     timeout-minutes: 90
 
     steps:
@@ -40,12 +66,6 @@ jobs:
 
       - name: Instalar dependencias
         run: flutter pub get
-
-      - name: Analizar código
-        run: flutter analyze
-
-      - name: Ejecutar pruebas
-        run: flutter test
 
       - name: Compilar para simulador iOS
         run: |
