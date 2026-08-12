@@ -39,10 +39,10 @@ jobs:
         run: flutter test
 
   build-ios:
-    name: Compilar y ejecutar iOS
+    name: Compilar aplicación para iPhone
     needs: validate-flutter
-    # ML Kit falla al enlazar MLImage en simuladores de Xcode 26.
-    # Xcode 16.4 conserva la compatibilidad x86_64 necesaria para esta prueba.
+    # MLImage de ML Kit se distribuye para iPhone y no para el simulador.
+    # La compilación sin firma valida el paquete real sin exigir una cuenta Apple.
     runs-on: macos-15-intel
     timeout-minutes: 90
 
@@ -50,7 +50,7 @@ jobs:
       - name: Descargar código
         uses: actions/checkout@v6
 
-      - name: Configurar Xcode compatible con ML Kit
+      - name: Configurar Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: '16.4'
@@ -71,44 +71,24 @@ jobs:
       - name: Instalar dependencias
         run: flutter pub get
 
-      - name: Compilar para simulador iOS
+      - name: Compilar aplicación iOS sin firma
         run: |
-          flutter build ios --simulator --debug \
+          flutter build ios --debug --no-codesign \
             --dart-define=CLOUDINARY_CLOUD_NAME=ci_demo \
             --dart-define=CLOUDINARY_UNSIGNED_UPLOAD_PRESET=ci_demo_unsigned
 
-      - name: Iniciar aplicación en simulador iPhone
+      - name: Verificar paquete para iPhone
         shell: bash
         run: |
-          DEVICE_UDID="$(python3 -c 'import json, subprocess; data = json.loads(subprocess.check_output(["xcrun", "simctl", "list", "devices", "available", "-j"])); devices = [device for runtime, items in data["devices"].items() if "iOS" in runtime for device in items if device.get("isAvailable") and device["name"].startswith("iPhone")]; print(devices[0]["udid"])')"
-          APP_ID="pe.edu.unh.controlAsistencia"
+          test -d build/ios/iphoneos/Runner.app
+          test -f build/ios/iphoneos/Runner.app/Runner
+          file build/ios/iphoneos/Runner.app/Runner
+          plutil -p build/ios/iphoneos/Runner.app/Info.plist
 
-          echo "Usando simulador: $DEVICE_UDID"
-          xcrun simctl boot "$DEVICE_UDID" || true
-          xcrun simctl bootstatus "$DEVICE_UDID" -b
-
-          xcrun simctl install \
-            "$DEVICE_UDID" \
-            build/ios/iphonesimulator/Runner.app
-
-          LAUNCH_OUTPUT="$(xcrun simctl launch "$DEVICE_UDID" "$APP_ID")"
-          echo "$LAUNCH_OUTPUT"
-          APP_PID="${LAUNCH_OUTPUT##*: }"
-
-          sleep 12
-          kill -0 "$APP_PID"
-
-          xcrun simctl io \
-            "$DEVICE_UDID" \
-            screenshot \
-            build/ios/ios-launch.png
-
-      - name: Guardar aplicación del simulador
+      - name: Guardar aplicación iOS sin firma
         uses: actions/upload-artifact@v4
         with:
-          name: control-asistencia-ios-simulator
-          path: |
-            build/ios/iphonesimulator/Runner.app
-            build/ios/ios-launch.png
+          name: control-asistencia-ios-iphone-unsigned
+          path: build/ios/iphoneos/Runner.app
           if-no-files-found: error
           retention-days: 7
