@@ -17,7 +17,9 @@ jobs:
     name: Analizar, probar y compilar iOS
     # ML Kit todavía requiere x86_64 para el simulador de iOS 26.
     runs-on: macos-26-intel
-    timeout-minutes: 60
+    # En el runner Intel, las pruebas y la primera compilación nativa de OpenCV,
+    # Firebase y ML Kit pueden superar una hora sin caché.
+    timeout-minutes: 90
 
     steps:
       - name: Descargar código
