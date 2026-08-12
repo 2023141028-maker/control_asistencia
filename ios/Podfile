@@ -34,9 +34,13 @@ require File.expand_path(
 flutter_ios_podfile_setup
 
 target 'Runner' do
-  # Firebase y ML Kit incluyen pods Swift con dependencias Objective-C.
-  # Los encabezados modulares permiten integrarlos correctamente como librerías estáticas.
-  use_modular_headers!
+  # Firebase incluye pods Swift con dependencias Objective-C sin módulos.
+  # Modularizarlas de forma selectiva evita alterar gRPC y su modulemap propio.
+  pod 'FirebaseAuthInterop', :modular_headers => true
+  pod 'FirebaseAppCheckInterop', :modular_headers => true
+  pod 'GoogleUtilities', :modular_headers => true
+  pod 'RecaptchaInterop', :modular_headers => true
+  pod 'FirebaseFirestoreInternal', :modular_headers => true
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 
