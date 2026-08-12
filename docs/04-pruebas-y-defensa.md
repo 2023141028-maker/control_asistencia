@@ -9,7 +9,7 @@ Este documento presenta evidencia verificable de:
 - Prevención de duplicidad.
 - Transacciones.
 - Manejo de errores.
-- Consistencia entre Firestore y Storage.
+- Consistencia entre Firestore y Cloudinary.
 - Pruebas automatizadas.
 - Prueba manual de extremo a extremo.
 - Decisiones que deben explicarse durante la defensa.
@@ -233,27 +233,24 @@ Se aplican varias barreras:
 
 La duplicidad no depende únicamente de que el botón esté deshabilitado.
 
-## 7. Consistencia entre Storage y Firestore
+## 7. Consistencia entre Cloudinary y Firestore
 
 La marcación utiliza dos servicios diferentes y no existe una transacción distribuida entre ambos.
 
-Por eso se aplica una estrategia de compensación:
+El flujo minimiza inconsistencias mediante validaciones previas y trazabilidad:
 
 ```mermaid
 flowchart TD
-    A[Capturar foto] --> B[Subir a Storage]
+    A[Validar rostro y GPS] --> B[Subir a Cloudinary]
     B --> C[Registrar en Firestore]
     C -->|Correcto| D[Confirmar jornada]
-    C -->|Error| E[Eliminar foto provisional]
+    C -->|Error| E[Marcar limpieza pendiente]
 ```
 
-Si Firestore falla:
-
-- La aplicación intenta eliminar la fotografía.
-- Storage permite eliminarla solamente mientras no esté confirmada.
-- Una evidencia vinculada a una asistencia confirmada no puede eliminarse.
-
-Esta estrategia evita, en la mayoría de casos controlados, archivos huérfanos.
+Si Firestore falla, la asistencia no se confirma. La eliminación autenticada de
+la fotografía provisional debe realizarse desde un backend autorizado porque el
+API secret no puede incluirse en el APK. Esta limitación se declara de forma
+explícita y evita una falsa garantía de atomicidad entre servicios.
 
 ## 8. Manejo de errores
 
@@ -323,16 +320,16 @@ Cada error se transforma en un mensaje comprensible para el usuario.
 | Pruebas de widgets | `flutter_test` | Validar estados visibles |
 | Repositorios | `fake_cloud_firestore` | Validar transacciones y lectura |
 | Reglas Firestore | Emulator Suite | Validar acceso e integridad |
-| Reglas Storage | Emulator Suite | Validar evidencias |
+| Política Cloudinary | Prueba funcional | Validar formato, URL y secreto fuera del APK |
 | Prueba manual | Emulador Android | Validar flujo completo |
-| Validación iOS | GitHub Actions, macOS 26 y simulador iPhone | Validar compilación, instalación y arranque |
+| Preparación iOS | Podfile, iOS 15.5, permisos y workflow macOS | Revalidar compilación, instalación y arranque de la versión 1.6.0 |
 
 ## 10. Pruebas Flutter
 
 Resultado verificado:
 
 ```text
-35 pruebas aprobadas
+44 pruebas Flutter incluidas en la versión 1.6.0
 ```
 
 ### 10.1. Distribución
@@ -411,7 +408,7 @@ Resultado verificado:
 Resultado:
 
 ```text
-33 pruebas aprobadas
+36 pruebas de reglas Firestore incluidas en la versión 1.6.0
 ```
 
 Casos:
@@ -482,69 +479,30 @@ Casos:
 
 33. Impide asignar una sede inexistente a un trabajador activo.
 
-## 12. Pruebas de reglas Storage
+34. Rechaza asistencia sin consentimiento facial activo.
 
-Resultado:
+35. Rechaza una marcación sin aceptación de privacidad.
 
-```text
-20 pruebas aprobadas
-```
+36. Permite matrícula facial administrativa con consentimiento trazable.
 
-Casos:
+## 12. Pruebas de privacidad y Cloudinary
 
-1. Rechaza carga sin autenticación.
-
-2. Rechaza trabajador inactivo.
-
-3. Permite JPEG válido del propietario.
-
-4. Rechaza carga en ruta ajena.
-
-5. Rechaza contenido diferente de JPEG.
-
-6. Rechaza evidencia mayor de 2 MB.
-
-7. Rechaza evidencia vacía.
-
-8. Rechaza sede incorrecta.
-
-9. Rechaza nombre no autorizado.
-
-10. Impide sobrescribir una fotografía.
-
-11. Permite lectura al propietario.
-
-12. Impide lectura a otro trabajador.
-
-13. Permite lectura al administrador.
-
-14. Impide modificar metadatos.
-
-15. Permite limpiar entrada no confirmada.
-
-16. Impide eliminar entrada confirmada.
-
-17. Rechaza salida sin entrada abierta.
-
-18. Permite salida con entrada abierta.
-
-19. Permite limpiar salida no confirmada.
-
-20. Impide eliminar salida confirmada.
+Las pruebas Flutter comprueban formato JPEG, tamaño, configuración, URL segura,
+prueba de vida, consentimiento obligatorio y cálculo de conservación. Las reglas
+Firestore rechazan una asistencia sin consentimiento facial activo, sin
+aceptación por marcación o con metadatos de privacidad incompatibles.
 
 ## 13. Resultado total de reglas
 
 ```text
-33 pruebas Firestore
-20 pruebas Storage
-53 pruebas de reglas aprobadas
+36 pruebas de reglas Firestore incluidas
 ```
 
 Comando reproducible:
 
 ```powershell
 firebase emulators:exec `
-  --only "firestore,storage" `
+  --only firestore `
   "npm --prefix firebase-tests test" `
   --project control-asistencia-d468b
 ```
@@ -586,7 +544,7 @@ Entorno:
 - Android Emulator.
 - Authentication Emulator.
 - Firestore Emulator.
-- Storage Emulator.
+- Cloudinary de desarrollo con preset restringido.
 - Sede UNH Pampas.
 - Ubicación simulada desde el emulador.
 
@@ -606,17 +564,17 @@ Entorno:
 
 7. Validar ubicación.
 
-8. Registrar entrada.
+8. Aceptar el aviso de privacidad.
 
-9. Confirmar documento en Firestore.
+9. Superar prueba de vida y comparación facial.
 
-10. Confirmar `check-in.jpg` en Storage.
+10. Registrar entrada y confirmar el documento en Firestore.
 
-11. Registrar salida.
+11. Confirmar fotografía en Cloudinary y fecha de conservación.
 
-12. Confirmar `status: completed`.
+12. Registrar salida.
 
-13. Confirmar mapa `checkOut`.
+13. Confirmar `status: completed`, `checkOut` y constancia.
 
 14. Confirmar `check-out.jpg`.
 
@@ -681,9 +639,11 @@ Mediante un ID formado por UID y fecha, una transacción, validación del reposi
 
 No debe ser aceptado. Firestore recalcula la distancia entre el GPS recibido y la sede, y compara ambos resultados con una tolerancia de 2 metros.
 
-### ¿Por qué se guarda la fotografía en Storage?
+### ¿Por qué se guarda la fotografía en Cloudinary?
 
-Porque Firestore está diseñado para documentos estructurados. Storage está diseñado para archivos binarios y permite reglas sobre ruta, tamaño, tipo y metadatos.
+Porque Firestore almacena documentos estructurados y no debe contener bytes de
+imágenes. Cloudinary conserva el archivo JPEG; Firestore registra únicamente una
+URL HTTPS validada, la finalidad y la fecha límite de conservación.
 
 ### ¿Qué sucede si se sube la fotografía pero Firestore falla?
 
@@ -699,12 +659,14 @@ Porque son registros de auditoría. Una eliminación destruiría la trazabilidad
 
 ### ¿Qué limitaciones existen?
 
-- Storage remoto puede requerir Blaze.
-- No existe reconocimiento facial.
+- La eliminación automática en Cloudinary requiere un backend autorizado.
+- La comparación facial y la prueba de vida no equivalen a una certificación
+  biométrica especializada contra todos los ataques de presentación.
 - El panel administrativo es móvil; no se incluye un portal web independiente.
 - No se admiten múltiples turnos.
 - La detección de GPS simulado puede reforzarse con Play Integrity.
-- Se necesita definir una política institucional de retención.
+- El proyecto configura 90 días de conservación de fotografías, pero la
+  institución debe ratificar ese plazo antes del uso productivo.
 
 ## 18. Criterios de aceptación del MVP
 
@@ -733,9 +695,8 @@ El MVP se considera correcto cuando:
 |---|---|
 | Reglas Firestore | `firestore.rules` |
 | Índices | `firestore.indexes.json` |
-| Reglas Storage | `storage.rules` |
+| Política de privacidad | `docs/06-politica-privacidad-retencion.md` |
 | Pruebas Firestore | `firebase-tests/test/firestore.rules.test.js` |
-| Pruebas Storage | `firebase-tests/test/storage.rules.test.js` |
 | Datos locales | `firebase-tests/scripts/seed-demo.js` |
 | Pruebas Flutter | `test/` |
 | Configuración de emuladores | `firebase.json` |

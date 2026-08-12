@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../location/domain/geofence_validator.dart';
+import '../../privacy/domain/privacy_policy.dart';
 import '../domain/attendance_day.dart';
 import '../domain/attendance_record.dart';
 import '../domain/attendance_repository.dart';
@@ -91,7 +92,7 @@ final class FirestoreAttendanceRepository implements AttendanceRepository {
   Future<AttendanceRecord> registerCheckIn({
     required AttendanceRegistrationCommand command,
   }) async {
-    final prepared = _prepareCommand(command: command, eventName: 'check-in');
+    final prepared = _prepareCommand(command: command);
 
     final reference = _collection.doc(prepared.attendanceId);
 
@@ -140,7 +141,7 @@ final class FirestoreAttendanceRepository implements AttendanceRepository {
   Future<AttendanceRecord> registerCheckOut({
     required AttendanceRegistrationCommand command,
   }) async {
-    final prepared = _prepareCommand(command: command, eventName: 'check-out');
+    final prepared = _prepareCommand(command: command);
 
     final reference = _collection.doc(prepared.attendanceId);
 
@@ -205,7 +206,6 @@ final class FirestoreAttendanceRepository implements AttendanceRepository {
 
   _PreparedAttendanceCommand _prepareCommand({
     required AttendanceRegistrationCommand command,
-    required String eventName,
   }) {
     final userId = _validateUserId(command.userId);
     final officeId = command.office.id.trim();
@@ -221,16 +221,40 @@ final class FirestoreAttendanceRepository implements AttendanceRepository {
 
     final attendanceId = command.workDay.documentIdFor(userId);
 
-    final expectedEvidencePath =
-        'attendanceEvidence/'
-        '$userId/'
-        '$attendanceId/'
-        '$eventName.jpg';
-
-    if (command.evidencePath.trim() != expectedEvidencePath) {
-      throw AttendanceFailure(
+    if (!_isValidCloudinaryEvidence(command.evidencePath)) {
+      throw const AttendanceFailure(
         code: AttendanceFailureCode.evidenceRequired,
-        message: 'La evidencia debe almacenarse en $expectedEvidencePath.',
+        message: 'La evidencia debe provenir del repositorio autorizado.',
+      );
+    }
+
+    if (!command.livenessVerified ||
+        !const ['turn-head', 'tilt-head'].contains(
+          command.livenessChallenge,
+        )) {
+      throw const AttendanceFailure(
+        code: AttendanceFailureCode.invalidData,
+        message: 'La asistencia requiere una prueba de vida válida.',
+      );
+    }
+
+    final faceSimilarity = command.faceSimilarity;
+    if (faceSimilarity == null || faceSimilarity < 0.60 || faceSimilarity > 1) {
+      throw const AttendanceFailure(
+        code: AttendanceFailureCode.invalidData,
+        message: 'La identidad facial no fue verificada.',
+      );
+    }
+
+    if (!command.privacyConsentAccepted ||
+        command.privacyConsentVersion != PrivacyPolicy.noticeVersion ||
+        !PrivacyPolicy.isValidRetentionWindow(
+          recordedAt: command.location.capturedAt,
+          retentionUntil: command.evidenceRetentionUntil,
+        )) {
+      throw const AttendanceFailure(
+        code: AttendanceFailureCode.privacyConsentRequired,
+        message: 'La autorización de privacidad no es válida.',
       );
     }
 
@@ -275,6 +299,20 @@ final class FirestoreAttendanceRepository implements AttendanceRepository {
       'distanceMeters': distanceMeters,
       'isMocked': command.location.isMocked,
       'evidencePath': command.evidencePath,
+      if (command.faceSimilarity != null) ...{
+        'faceVerified': true,
+        'faceSimilarity': command.faceSimilarity,
+        'faceModelVersion': 'mobilefacenet_192_v1',
+      },
+      'livenessVerified': command.livenessVerified,
+      'livenessChallenge': command.livenessChallenge,
+      'livenessMethod': 'active-head-movement-v1',
+      'privacyConsentAccepted': command.privacyConsentAccepted,
+      'privacyConsentVersion': command.privacyConsentVersion,
+      'evidencePurpose': PrivacyPolicy.evidencePurpose,
+      'evidenceRetentionUntil': Timestamp.fromDate(
+        command.evidenceRetentionUntil.toUtc(),
+      ),
     };
   }
 
@@ -348,6 +386,15 @@ final class FirestoreAttendanceRepository implements AttendanceRepository {
       distanceMeters: _requiredNumber(data, 'distanceMeters'),
       isMocked: _requiredBool(data, 'isMocked'),
       evidencePath: _requiredString(data, 'evidencePath'),
+      faceVerified: data['faceVerified'] == true,
+      faceSimilarity: (data['faceSimilarity'] as num?)?.toDouble(),
+      livenessVerified: data['livenessVerified'] == true,
+      livenessChallenge: data['livenessChallenge'] as String?,
+      privacyConsentAccepted: data['privacyConsentAccepted'] == true,
+      privacyConsentVersion: data['privacyConsentVersion'] as String?,
+      evidencePurpose: data['evidencePurpose'] as String?,
+      evidenceRetentionUntil:
+          (data['evidenceRetentionUntil'] as Timestamp?)?.toDate(),
     );
   }
 
@@ -360,20 +407,13 @@ final class FirestoreAttendanceRepository implements AttendanceRepository {
         (record.status == AttendanceStatus.completed &&
             record.checkOut != null);
 
-    final validCheckInPath =
-        record.checkIn.evidencePath ==
-        'attendanceEvidence/'
-            '${record.userId}/'
-            '${record.id}/'
-            'check-in.jpg';
+    final validCheckInPath = _isValidCloudinaryEvidence(
+      record.checkIn.evidencePath,
+    );
 
     final validCheckOutPath =
         record.checkOut == null ||
-        record.checkOut!.evidencePath ==
-            'attendanceEvidence/'
-                '${record.userId}/'
-                '${record.id}/'
-                'check-out.jpg';
+        _isValidCloudinaryEvidence(record.checkOut!.evidencePath);
 
     final validMarks =
         _isValidMark(record.checkIn) &&
@@ -400,10 +440,36 @@ final class FirestoreAttendanceRepository implements AttendanceRepository {
   }
 
   bool _isValidMark(AttendanceMark mark) {
+    final hasNoPrivacyMetadata =
+        !mark.privacyConsentAccepted &&
+        mark.privacyConsentVersion == null &&
+        mark.evidencePurpose == null &&
+        mark.evidenceRetentionUntil == null;
+    final hasValidPrivacyMetadata =
+        mark.privacyConsentAccepted &&
+        mark.privacyConsentVersion == PrivacyPolicy.noticeVersion &&
+        mark.evidencePurpose == PrivacyPolicy.evidencePurpose &&
+        mark.evidenceRetentionUntil != null;
+
     return mark.accuracyMeters > 0 &&
         mark.distanceMeters >= 0 &&
         !mark.isMocked &&
-        mark.evidencePath.isNotEmpty;
+        mark.evidencePath.isNotEmpty &&
+        (hasNoPrivacyMetadata || hasValidPrivacyMetadata);
+  }
+
+  bool _isValidCloudinaryEvidence(String value) {
+    final uri = Uri.tryParse(value);
+    if (uri == null ||
+        uri.scheme != 'https' ||
+        uri.host != 'res.cloudinary.com') {
+      return false;
+    }
+
+    return uri.path.contains('/image/upload/') &&
+        (uri.path.endsWith('.jpg') || uri.path.endsWith('.jpeg')) &&
+        uri.query.isEmpty &&
+        uri.fragment.isEmpty;
   }
 
   String _validateUserId(String userId) {

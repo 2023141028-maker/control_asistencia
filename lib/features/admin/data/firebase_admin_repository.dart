@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
 import '../../../config/firebase_emulator_config.dart';
 import '../../attendance/domain/attendance_day.dart';
@@ -11,14 +10,10 @@ import '../../users/domain/user_profile.dart';
 import '../domain/admin_repository.dart';
 
 final class FirebaseAdminRepository implements AdminRepository {
-  FirebaseAdminRepository({
-    FirebaseFirestore? firestore,
-    FirebaseStorage? storage,
-  }) : _firestore = firestore ?? FirebaseFirestore.instance,
-       _storage = storage ?? FirebaseStorage.instance;
+  FirebaseAdminRepository({FirebaseFirestore? firestore})
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   final FirebaseFirestore _firestore;
-  final FirebaseStorage _storage;
 
   CollectionReference<Map<String, dynamic>> get _users {
     return _firestore.collection('users');
@@ -327,19 +322,19 @@ final class FirebaseAdminRepository implements AdminRepository {
 
   @override
   Future<String> getEvidenceDownloadUrl({required String evidencePath}) async {
-    final path = evidencePath.trim();
+    final url = evidencePath.trim();
+    final uri = Uri.tryParse(url);
 
-    if (!path.startsWith('attendanceEvidence/') || !path.endsWith('.jpg')) {
+    if (url != evidencePath ||
+        uri == null ||
+        uri.scheme != 'https' ||
+        uri.host != 'res.cloudinary.com' ||
+        !uri.path.contains('/image/upload/') ||
+        !(uri.path.endsWith('.jpg') || uri.path.endsWith('.jpeg'))) {
       throw const AdminFailure('La ruta de evidencia no es válida.');
     }
 
-    try {
-      return await _storage.ref(path).getDownloadURL();
-    } on FirebaseException catch (error) {
-      throw AdminFailure(_messageForFirebase(error));
-    } catch (_) {
-      throw const AdminFailure('No se pudo abrir la evidencia fotográfica.');
-    }
+    return url;
   }
 
   Future<void> _deleteCreatedAuthUser(User? user) async {
@@ -465,6 +460,10 @@ final class FirebaseAdminRepository implements AdminRepository {
       distanceMeters: _requiredNumber(data, 'distanceMeters'),
       isMocked: _requiredBool(data, 'isMocked'),
       evidencePath: _requiredString(data, 'evidencePath'),
+      faceVerified: data['faceVerified'] == true,
+      faceSimilarity: (data['faceSimilarity'] as num?)?.toDouble(),
+      livenessVerified: data['livenessVerified'] == true,
+      livenessChallenge: data['livenessChallenge'] as String?,
     );
   }
 

@@ -33,6 +33,7 @@ jobs:
         run: |
           flutter --version
           xcodebuild -version
+          pod --version
 
       - name: Instalar dependencias
         run: flutter pub get
@@ -44,7 +45,10 @@ jobs:
         run: flutter test
 
       - name: Compilar para simulador iOS
-        run: flutter build ios --simulator --debug
+        run: |
+          flutter build ios --simulator --debug \
+            --dart-define=CLOUDINARY_CLOUD_NAME=ci_demo \
+            --dart-define=CLOUDINARY_UNSIGNED_UPLOAD_PRESET=ci_demo_unsigned
 
       - name: Iniciar aplicación en simulador iPhone
         shell: bash

@@ -252,9 +252,22 @@ class _MarkSection extends StatelessWidget {
           label: 'Precisión',
           value: '${mark.accuracyMeters.toStringAsFixed(1)} m',
         ),
+        if (mark.evidenceRetentionUntil != null) ...[
+          const SizedBox(height: 6),
+          _HistoryMetric(
+            label: 'Evidencia hasta',
+            value: _formatLimaDate(mark.evidenceRetentionUntil!),
+          ),
+        ],
       ],
     );
   }
+}
+
+String _formatLimaDate(DateTime value) {
+  final limaTime = value.toUtc().subtract(const Duration(hours: 5));
+  return '${limaTime.day.toString().padLeft(2, '0')}/'
+      '${limaTime.month.toString().padLeft(2, '0')}/${limaTime.year}';
 }
 
 class _HistoryMetric extends StatelessWidget {

@@ -14,10 +14,17 @@ extension EvidenceEventDetails on EvidenceEvent {
 }
 
 final class CapturedEvidence {
-  const CapturedEvidence({required this.bytes, required this.capturedAt});
+  const CapturedEvidence({
+    required this.bytes,
+    required this.capturedAt,
+    this.livenessVerified = false,
+    this.livenessChallenge,
+  });
 
   final Uint8List bytes;
   final DateTime capturedAt;
+  final bool livenessVerified;
+  final String? livenessChallenge;
 
   int get sizeBytes => bytes.lengthInBytes;
 }
@@ -114,6 +121,23 @@ final class EvidencePolicy {
       throw const EvidenceFailure(
         code: EvidenceFailureCode.invalidFormat,
         message: 'La evidencia debe ser una fotografía JPEG válida.',
+      );
+    }
+
+    final challenge = evidence.livenessChallenge;
+    if (evidence.livenessVerified &&
+        challenge != 'turn-head' &&
+        challenge != 'tilt-head') {
+      throw const EvidenceFailure(
+        code: EvidenceFailureCode.invalidData,
+        message: 'La prueba de vida no es válida.',
+      );
+    }
+
+    if (!evidence.livenessVerified && challenge != null) {
+      throw const EvidenceFailure(
+        code: EvidenceFailureCode.invalidData,
+        message: 'La prueba de vida es inconsistente.',
       );
     }
   }

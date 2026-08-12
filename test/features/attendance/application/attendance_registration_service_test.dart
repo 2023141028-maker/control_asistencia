@@ -50,6 +50,7 @@ void main() {
     final result = await service.registerNextEvent(
       userId: _userId,
       office: office,
+      privacyConsentAccepted: true,
     );
 
     expect(result, isNotNull);
@@ -70,6 +71,7 @@ void main() {
     final result = await service.registerNextEvent(
       userId: _userId,
       office: office,
+      privacyConsentAccepted: true,
     );
 
     expect(result, isNotNull);
@@ -87,6 +89,7 @@ void main() {
     final result = await service.registerNextEvent(
       userId: _userId,
       office: office,
+      privacyConsentAccepted: true,
     );
 
     expect(result, isNull);
@@ -103,7 +106,11 @@ void main() {
     );
 
     await expectLater(
-      service.registerNextEvent(userId: _userId, office: office),
+      service.registerNextEvent(
+        userId: _userId,
+        office: office,
+        privacyConsentAccepted: true,
+      ),
       throwsA(
         isA<AttendanceFailure>().having(
           (failure) => failure.code,
@@ -124,7 +131,11 @@ void main() {
     );
 
     await expectLater(
-      service.registerNextEvent(userId: _userId, office: office),
+      service.registerNextEvent(
+        userId: _userId,
+        office: office,
+        privacyConsentAccepted: true,
+      ),
       throwsA(
         isA<AttendanceFailure>().having(
           (failure) => failure.code,
@@ -138,10 +149,9 @@ void main() {
     expect(evidenceRepository.deletedPaths, hasLength(1));
     expect(
       evidenceRepository.deletedPaths.single,
-      'attendanceEvidence/'
-      'employee-001/'
-      'employee-001_2026-07-30/'
-      'check-in.jpg',
+      'https://res.cloudinary.com/demo/image/upload/v1/'
+      'attendanceEvidence/employee-001/'
+      'employee-001_2026-07-30/check-in.jpg',
     );
   });
 
@@ -149,7 +159,11 @@ void main() {
     attendanceRepository.currentRecord = _buildRecord(completed: true);
 
     await expectLater(
-      service.registerNextEvent(userId: _userId, office: office),
+      service.registerNextEvent(
+        userId: _userId,
+        office: office,
+        privacyConsentAccepted: true,
+      ),
       throwsA(
         isA<AttendanceFailure>().having(
           (failure) => failure.code,
@@ -170,12 +184,34 @@ void main() {
     final result = await service.registerNextEvent(
       userId: _userId,
       office: office,
+      privacyConsentAccepted: true,
     );
 
     expect(result, isNotNull);
     expect(evidenceCamera.recoverCalls, 1);
     expect(evidenceCamera.captureCalls, 0);
     expect(evidenceRepository.uploadCalls, 1);
+  });
+
+  test('rechaza antes de abrir cámara si no existe consentimiento', () async {
+    await expectLater(
+      service.registerNextEvent(
+        userId: _userId,
+        office: office,
+        privacyConsentAccepted: false,
+      ),
+      throwsA(
+        isA<AttendanceFailure>().having(
+          (failure) => failure.code,
+          'code',
+          AttendanceFailureCode.privacyConsentRequired,
+        ),
+      ),
+    );
+
+    expect(evidenceCamera.recoverCalls, 0);
+    expect(evidenceCamera.captureCalls, 0);
+    expect(evidenceRepository.uploadCalls, 0);
   });
 }
 
@@ -226,10 +262,9 @@ AttendanceMark _buildMark({required String fileName}) {
     distanceMeters: 0,
     isMocked: false,
     evidencePath:
-        'attendanceEvidence/'
-        'employee-001/'
-        'employee-001_2026-07-30/'
-        '$fileName',
+        'https://res.cloudinary.com/demo/image/upload/v1/'
+        'attendanceEvidence/employee-001/'
+        'employee-001_2026-07-30/$fileName',
   );
 }
 
@@ -330,11 +365,9 @@ final class _FakeEvidenceRepository implements EvidenceRepository {
     uploadCalls++;
     lastEvent = event;
 
-    return EvidencePolicy.pathFor(
-      userId: userId,
-      workDay: workDay,
-      event: event,
-    );
+    return 'https://res.cloudinary.com/demo/image/upload/v1/'
+        'attendanceEvidence/$userId/'
+        '${workDay.documentIdFor(userId)}/${event.fileName}';
   }
 
   @override

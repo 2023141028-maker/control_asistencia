@@ -1,4 +1,9 @@
-VALIDACIÓN AUTOMATIZADA DE IOS
+VALIDACIÓN AUTOMATIZADA DE IOS — EVIDENCIA HISTÓRICA
+
+AVISO: este resultado corresponde al commit indicado y a una versión anterior
+del proyecto. No valida la versión 1.6.0 ni sus dependencias biométricas
+actuales. La configuración vigente debe volver a ejecutarse con el workflow
+.github/workflows/ios-build.yml antes de declarar compatibilidad verificada.
 
 Fecha: 31/07/2026
 Repositorio: https://github.com/2023141028-maker/control_asistencia

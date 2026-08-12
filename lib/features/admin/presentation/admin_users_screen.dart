@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../evidence/data/embedded_evidence_camera.dart';
+import '../../face_verification/data/firestore_face_profile_repository.dart';
+import '../../face_verification/data/mobile_face_verification_service.dart';
+import '../../face_verification/domain/face_profile.dart';
 import '../../offices/domain/office.dart';
 import '../../users/domain/user_profile.dart';
 import '../domain/admin_repository.dart';
@@ -22,6 +26,75 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
   final _searchController = TextEditingController();
   String _query = '';
   bool _saving = false;
+
+  Future<void> _enrollFace(UserProfile user) async {
+    var consentConfirmed = false;
+    final accepted = await showDialog<bool>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Matrícula facial'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Se generará una plantilla numérica del rostro de '
+                  '${user.fullName}. Es un dato biométrico sensible usado '
+                  'únicamente para validar la asistencia. La fotografía de '
+                  'matrícula no se guardará como foto de perfil.',
+                ),
+                const SizedBox(height: 12),
+                CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  value: consentConfirmed,
+                  onChanged: (value) {
+                    setDialogState(() {
+                      consentConfirmed = value ?? false;
+                    });
+                  },
+                  title: const Text(
+                    'Confirmo que el trabajador está presente, fue informado '
+                    'y aceptó expresamente la matrícula facial.',
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: consentConfirmed
+                  ? () => Navigator.pop(context, true)
+                  : null,
+              child: const Text('Continuar'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (accepted != true || !mounted) return;
+
+    final evidence = await EmbeddedEvidenceCamera().capture();
+    if (evidence == null || !mounted) return;
+
+    await _runOperation(() async {
+      final embedding = await MobileFaceVerificationService().createEmbedding(
+        evidence.bytes,
+      );
+      await FirestoreFaceProfileRepository().save(
+        userId: user.uid,
+        embedding: embedding,
+        enrolledBy: widget.currentAdmin.uid,
+        consentConfirmed: true,
+      );
+      return null;
+    }, successMessage: 'Rostro matriculado correctamente.');
+  }
 
   @override
   void dispose() {
@@ -110,6 +183,14 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     } on AdminFailure catch (error) {
       if (!mounted) return;
 
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.message),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    } on FaceVerificationFailure catch (error) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(error.message),
@@ -244,6 +325,9 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                               isCurrentAdmin:
                                   user.uid == widget.currentAdmin.uid,
                               onEdit: () => _editUser(user, offices),
+                              onEnrollFace: user.isAdmin
+                                  ? null
+                                  : () => _enrollFace(user),
                             );
                           },
                         ),
@@ -269,12 +353,14 @@ class _UserCard extends StatelessWidget {
     required this.officeName,
     required this.isCurrentAdmin,
     required this.onEdit,
+    required this.onEnrollFace,
   });
 
   final UserProfile user;
   final String? officeName;
   final bool isCurrentAdmin;
   final VoidCallback onEdit;
+  final VoidCallback? onEnrollFace;
 
   @override
   Widget build(BuildContext context) {
@@ -352,10 +438,21 @@ class _UserCard extends StatelessWidget {
             ],
           ),
         ),
-        trailing: IconButton(
-          tooltip: 'Editar perfil',
-          onPressed: onEdit,
-          icon: const Icon(Icons.edit_outlined),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (onEnrollFace != null)
+              IconButton(
+                tooltip: 'Matricular rostro',
+                onPressed: onEnrollFace,
+                icon: const Icon(Icons.face_retouching_natural),
+              ),
+            IconButton(
+              tooltip: 'Editar perfil',
+              onPressed: onEdit,
+              icon: const Icon(Icons.edit_outlined),
+            ),
+          ],
         ),
       ),
     );

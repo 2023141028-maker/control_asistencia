@@ -9,6 +9,7 @@ import '../../location/domain/geofence_validator.dart';
 import '../../location/domain/location_service.dart';
 import '../../location/presentation/location_verification_card.dart';
 import '../../offices/domain/office.dart';
+import '../../privacy/presentation/privacy_notice_screen.dart';
 import '../../users/domain/user_profile.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -56,6 +57,14 @@ class HomeScreen extends StatelessWidget {
           userId: profile.uid,
           attendanceRepository: attendanceRepository,
         ),
+      ),
+    );
+  }
+
+  void _openPrivacyNotice(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const PrivacyNoticeScreen(),
       ),
     );
   }
@@ -199,6 +208,8 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 24),
             AttendanceRegistrationCard(
               userId: profile.uid,
+              employeeCode: profile.employeeCode,
+              employeeName: profile.fullName,
               office: office,
               attendanceRepository: attendanceRepository,
               registrationService: registrationService,
@@ -231,10 +242,35 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 20),
             Card(
               child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 10,
+                ),
+                leading: CircleAvatar(
+                  backgroundColor: colors.tertiaryContainer,
+                  child: Icon(
+                    Icons.privacy_tip_outlined,
+                    color: colors.onTertiaryContainer,
+                  ),
+                ),
+                title: const Text(
+                  'Privacidad y uso de evidencias',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: const Text(
+                  'Consulta la finalidad, protección y conservación de datos.',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _openPrivacyNotice(context),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Card(
+              child: ListTile(
                 leading: Icon(Icons.security, color: colors.primary),
                 title: const Text('Acceso verificado'),
                 subtitle: const Text(
-                  'Authentication, Firestore, GPS y evidencia fotográfica '
+                  'Autenticación, Firestore, GPS, biometría y evidencias '
                   'están protegidos mediante validaciones y reglas.',
                 ),
               ),

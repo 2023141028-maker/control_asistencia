@@ -52,6 +52,40 @@ void main() {
       );
     });
 
+    test('acepta evidencia con prueba de vida válida', () {
+      final evidence = CapturedEvidence(
+        bytes: Uint8List.fromList([0xFF, 0xD8, 0xFF, 0xE0]),
+        capturedAt: DateTime.utc(2026, 7, 30, 13),
+        livenessVerified: true,
+        livenessChallenge: 'turn-head',
+      );
+
+      expect(
+        () => EvidencePolicy.validateCapturedEvidence(evidence),
+        returnsNormally,
+      );
+    });
+
+    test('rechaza prueba de vida con desafío desconocido', () {
+      final evidence = CapturedEvidence(
+        bytes: Uint8List.fromList([0xFF, 0xD8, 0xFF, 0xE0]),
+        capturedAt: DateTime.utc(2026, 7, 30, 13),
+        livenessVerified: true,
+        livenessChallenge: 'unknown',
+      );
+
+      expect(
+        () => EvidencePolicy.validateCapturedEvidence(evidence),
+        throwsA(
+          isA<EvidenceFailure>().having(
+            (failure) => failure.code,
+            'code',
+            EvidenceFailureCode.invalidData,
+          ),
+        ),
+      );
+    });
+
     test('rechaza una evidencia vacía', () {
       final evidence = CapturedEvidence(
         bytes: Uint8List(0),

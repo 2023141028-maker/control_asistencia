@@ -4,6 +4,7 @@ import 'package:control_asistencia/features/attendance/domain/attendance_record.
 import 'package:control_asistencia/features/attendance/domain/attendance_repository.dart';
 import 'package:control_asistencia/features/location/domain/device_location.dart';
 import 'package:control_asistencia/features/offices/domain/office.dart';
+import 'package:control_asistencia/features/privacy/domain/privacy_policy.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -105,6 +106,7 @@ AttendanceRegistrationCommand _buildCommand({
 }) {
   final workDay = AttendanceDay.parse('2026-07-30');
   final attendanceId = workDay.documentIdFor(_userId);
+  final capturedAt = DateTime.now().toUtc();
 
   return AttendanceRegistrationCommand(
     userId: _userId,
@@ -114,14 +116,20 @@ AttendanceRegistrationCommand _buildCommand({
       latitude: office.latitude,
       longitude: office.longitude,
       accuracyMeters: 5,
-      capturedAt: DateTime.now().toUtc(),
+      capturedAt: capturedAt,
       isMocked: false,
     ),
     evidencePath:
-        'attendanceEvidence/'
-        '$_userId/'
-        '$attendanceId/'
-        '$eventName.jpg',
+        'https://res.cloudinary.com/demo/image/upload/v1/'
+        'attendanceEvidence/$_userId/$attendanceId/$eventName.jpg',
+    privacyConsentAccepted: true,
+    privacyConsentVersion: PrivacyPolicy.noticeVersion,
+    evidenceRetentionUntil: PrivacyPolicy.evidenceRetentionUntil(
+      capturedAt,
+    ),
+    livenessVerified: true,
+    livenessChallenge: 'turn-head',
+    faceSimilarity: 0.75,
   );
 }
 

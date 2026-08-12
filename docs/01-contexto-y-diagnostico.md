@@ -9,9 +9,9 @@
 | Sede del caso de estudio | UNH sede Pampas |
 | Autor | Wilder Huaman Quispe |
 | Código | 2023141028 |
-| Plataforma | Aplicación móvil Android e iOS desarrollada con Flutter |
+| Plataforma | Android verificado; proyecto iOS 15.5 preparado y pendiente de revalidación en macOS |
 | Repositorio | https://github.com/2023141028-maker/control_asistencia |
-| Backend | Firebase Authentication, Cloud Firestore y Cloud Storage |
+| Backend | Firebase Authentication, Cloud Firestore y Cloudinary |
 
 ## 1. Contextualización del problema
 
@@ -59,7 +59,7 @@ Es responsable de:
 
 Estas funciones se encuentran implementadas en un panel móvil exclusivo para
 cuentas con rol `admin`. Las mismas restricciones se validan nuevamente en
-Firestore y Storage.
+Firestore y la configuración restringida de Cloudinary.
 
 ## 3. Objetivo del MVP
 
@@ -79,9 +79,13 @@ Implementar un sistema móvil capaz de registrar una jornada diaria por trabajad
 
 7. Evidencia fotográfica válida.
 
-8. Entrada o salida coherente con el estado de la jornada.
+8. Comparación facial y prueba de vida activas.
 
-9. Fecha y hora controladas por Firebase.
+9. Consentimiento expreso y conservación registrada.
+
+10. Entrada o salida coherente con el estado de la jornada.
+
+11. Fecha y hora controladas por Firebase.
 
 ## 4. Alcance funcional
 
@@ -95,7 +99,10 @@ Implementar un sistema móvil capaz de registrar una jornada diaria por trabajad
 - Control de precisión máxima del GPS.
 - Detección de ubicación simulada.
 - Captura de fotografía con cámara frontal.
+- Detección de un rostro, comparación facial y prueba de vida activa.
 - Validación de formato y tamaño de evidencia.
+- Consentimiento explícito antes de cada marcación.
+- Registro de finalidad y fecha límite de conservación.
 - Registro transaccional de entrada.
 - Registro transaccional de salida.
 - Prevención de duplicidad.
@@ -107,13 +114,10 @@ Implementar un sistema móvil capaz de registrar una jornada diaria por trabajad
 - Creación y actualización de sedes.
 - Consulta administrativa de asistencias y evidencias.
 - Reglas de seguridad de Firestore.
-- Reglas de seguridad de Storage.
 - Pruebas automatizadas con Firebase Emulator Suite.
 
 ### 4.2. Elementos fuera del alcance
 
-- Reconocimiento facial.
-- Verificación biométrica.
 - Gestión de remuneraciones.
 - Control de permisos y vacaciones.
 - Múltiples turnos durante un mismo día.
@@ -121,6 +125,7 @@ Implementar un sistema móvil capaz de registrar una jornada diaria por trabajad
 - Panel web administrativo completo.
 - Reportes estadísticos avanzados.
 - Integración con dispositivos biométricos externos.
+- Certificación especializada contra todos los ataques biométricos.
 
 Estos elementos pueden implementarse en versiones futuras sin modificar la finalidad principal del MVP.
 
@@ -134,10 +139,12 @@ Estos elementos pueden implementarse en versiones futuras sin modificar la final
 | Ubicación | Obtener GPS, precisión y señal de ubicación simulada |
 | Geocerca | Calcular distancia y decidir si la ubicación es válida |
 | Evidencia | Capturar, validar, subir y eliminar fotografías temporales |
+| Biometría | Comparar plantilla facial y ejecutar prueba de vida |
+| Privacidad | Registrar consentimiento, finalidad y conservación |
 | Asistencia | Registrar entrada, salida y consultar jornada |
 | Administración | Gestionar trabajadores, sedes y asistencias |
-| Seguridad | Restringir datos mediante reglas de Firestore y Storage |
-| Emuladores | Reproducir Authentication, Firestore y Storage localmente |
+| Seguridad | Restringir datos mediante reglas Firestore y configuración Cloudinary |
+| Emuladores | Reproducir Authentication y Firestore localmente |
 | Pruebas | Validar dominio, widgets, repositorios y reglas |
 
 ## 6. Insumos utilizados
@@ -152,12 +159,12 @@ Estos elementos pueden implementarse en versiones futuras sin modificar la final
 | Radio de 100 metros | Límite de aceptación geográfica |
 | Precisión máxima de 30 metros | Control de calidad del GPS |
 | Código Flutter | Implementación móvil y separación por capas |
-| Configuración Firebase | Conexión con Authentication, Firestore y Storage |
+| Configuración Firebase y Cloudinary | Conexión con Authentication, Firestore y evidencias |
 | Reglas de seguridad | Validación de autorización e integridad |
 | Índices Firestore | Soporte para consultas ordenadas y filtradas |
 | Pruebas automatizadas | Evidencia reproducible de casos permitidos y rechazados |
 | Historial Git | Evidencia cronológica y verificable del avance |
-| Capturas del emulador | Evidencia visual de entrada, salida, Firestore y Storage |
+| Capturas de prueba | Evidencia visual de entrada, salida, Firestore y Cloudinary |
 
 ## 7. Evidencia del avance real
 
@@ -173,7 +180,7 @@ El desarrollo se encuentra dividido en commits con responsabilidades específica
 | `cbed8ea` | Integración de geolocalización en la interfaz |
 | `2accab9` | Registro transaccional de asistencia |
 | `d6a637a` | Pruebas de reglas Firestore |
-| `9a711b1` | Pruebas de reglas Storage |
+| `9a711b1` | Integración histórica inicial con Storage |
 | `e0aca42` | Captura y coordinación de evidencia |
 | `21717ca` | Flujo completo de entrada y salida |
 | `2eb534f` | Entorno local reproducible con emuladores |
