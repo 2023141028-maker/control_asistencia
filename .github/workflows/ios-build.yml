@@ -15,8 +15,9 @@ permissions:
 jobs:
   build-ios:
     name: Analizar, probar y compilar iOS
-    runs-on: macos-26
-    timeout-minutes: 40
+    # ML Kit todavía requiere x86_64 para el simulador de iOS 26.
+    runs-on: macos-26-intel
+    timeout-minutes: 60
 
     steps:
       - name: Descargar código
