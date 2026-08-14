@@ -10,12 +10,16 @@ import '../domain/attendance_day.dart';
 import '../domain/attendance_record.dart';
 import '../domain/attendance_receipt.dart';
 import '../domain/attendance_repository.dart';
+import '../../users/domain/hospital_assignment.dart';
 
 class AttendanceRegistrationCard extends StatefulWidget {
   const AttendanceRegistrationCard({
     required this.userId,
     required this.employeeCode,
     required this.employeeName,
+    required this.hospitalArea,
+    required this.position,
+    required this.shift,
     required this.office,
     required this.attendanceRepository,
     required this.registrationService,
@@ -25,6 +29,9 @@ class AttendanceRegistrationCard extends StatefulWidget {
   final String userId;
   final String employeeCode;
   final String employeeName;
+  final HospitalArea hospitalArea;
+  final String position;
+  final HospitalShift shift;
   final Office office;
   final AttendanceRepository attendanceRepository;
   final AttendanceRegistrationService registrationService;
@@ -41,7 +48,7 @@ class _AttendanceRegistrationCardState
   bool _isRegistering = false;
 
   AttendanceDay get _today {
-    return AttendanceDay.fromInstant(DateTime.now());
+    return AttendanceDay.forShift(DateTime.now(), widget.shift);
   }
 
   @override
@@ -56,6 +63,7 @@ class _AttendanceRegistrationCardState
 
     if (oldWidget.userId != widget.userId ||
         oldWidget.office.id != widget.office.id ||
+        oldWidget.shift != widget.shift ||
         oldWidget.attendanceRepository != widget.attendanceRepository) {
       _recordFuture = _loadRecord();
     }
@@ -94,6 +102,7 @@ class _AttendanceRegistrationCardState
         userId: widget.userId,
         office: widget.office,
         privacyConsentAccepted: true,
+        shift: widget.shift,
       );
 
       if (!mounted) {
@@ -123,6 +132,9 @@ class _AttendanceRegistrationCardState
         employeeCode: widget.employeeCode,
         employeeName: widget.employeeName,
         office: widget.office,
+        hospitalArea: widget.hospitalArea,
+        position: widget.position,
+        shift: widget.shift,
       );
 
       await _showReceipt(receipt);
@@ -173,6 +185,9 @@ class _AttendanceRegistrationCardState
               _ReceiptRow(label: 'Fecha', value: date),
               _ReceiptRow(label: 'Hora', value: time),
               _ReceiptRow(label: 'Sede', value: receipt.officeName),
+              _ReceiptRow(label: 'Área', value: receipt.hospitalArea),
+              _ReceiptRow(label: 'Cargo', value: receipt.position),
+              _ReceiptRow(label: 'Turno', value: receipt.shift),
               _ReceiptRow(
                 label: 'Ubicación',
                 value:
@@ -378,6 +393,7 @@ class _AttendanceRegistrationCardState
                 ),
                 const SizedBox(height: 6),
                 Text('Fecha laboral: ${_today.value}'),
+                Text('Turno asignado: ${widget.shift.label}'),
                 const SizedBox(height: 18),
                 Container(
                   padding: const EdgeInsets.all(16),

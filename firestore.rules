@@ -37,6 +37,9 @@ service cloud.firestore {
           'role',
           'status',
           'officeId',
+          'hospitalArea',
+          'position',
+          'shift',
           'schemaVersion',
           'createdAt',
           'updatedAt'
@@ -49,6 +52,9 @@ service cloud.firestore {
           'role',
           'status',
           'officeId',
+          'hospitalArea',
+          'position',
+          'shift',
           'schemaVersion',
           'createdAt',
           'updatedAt'
@@ -75,9 +81,42 @@ service cloud.firestore {
           )
         ) &&
         (
+          data.hospitalArea == null ||
+          data.hospitalArea in [
+            'emergency',
+            'hospitalization',
+            'outpatient',
+            'surgery',
+            'pediatrics',
+            'laboratory',
+            'pharmacy',
+            'admission',
+            'administration',
+            'cleaning',
+            'security'
+          ]
+        ) &&
+        (
+          data.position == null ||
+          (
+            data.position is string &&
+            data.position.size() >= 3 &&
+            data.position.size() <= 80
+          )
+        ) &&
+        (
+          data.shift == null ||
+          data.shift in ['morning', 'afternoon', 'night', 'guard-24h']
+        ) &&
+        (
           data.role == 'admin' ||
           data.status != 'active' ||
-          data.officeId is string
+          (
+            data.officeId is string &&
+            data.hospitalArea is string &&
+            data.position is string &&
+            data.shift is string
+          )
         ) &&
         data.schemaVersion is int &&
         data.schemaVersion == 1 &&
@@ -365,6 +404,9 @@ service cloud.firestore {
           'role',
           'status',
           'officeId',
+          'hospitalArea',
+          'position',
+          'shift',
           'updatedAt'
         ]) &&
         request.resource.data.updatedAt == request.time &&

@@ -23,7 +23,7 @@ class AttendanceApp extends StatelessWidget {
     return MaterialApp(
       navigatorKey: AppNavigator.key,
       debugShowCheckedModeBanner: false,
-      title: 'Control de Asistencia',
+      title: 'Asistencia Hospitalaria',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1565C0)),
         useMaterial3: true,

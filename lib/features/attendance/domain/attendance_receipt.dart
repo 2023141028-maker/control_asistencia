@@ -1,6 +1,7 @@
 import '../../evidence/domain/attendance_evidence.dart';
 import '../../offices/domain/office.dart';
 import 'attendance_record.dart';
+import '../../users/domain/hospital_assignment.dart';
 
 final class AttendanceReceipt {
   const AttendanceReceipt({
@@ -14,6 +15,9 @@ final class AttendanceReceipt {
     required this.distanceMeters,
     required this.privacyConsentVersion,
     required this.evidenceRetentionUntil,
+    required this.hospitalArea,
+    required this.position,
+    required this.shift,
   });
 
   factory AttendanceReceipt.fromRegistration({
@@ -22,6 +26,9 @@ final class AttendanceReceipt {
     required String employeeCode,
     required String employeeName,
     required Office office,
+    HospitalArea hospitalArea = HospitalArea.administration,
+    String position = 'Trabajador',
+    HospitalShift shift = HospitalShift.morning,
   }) {
     final mark = event == EvidenceEvent.checkIn
         ? record.checkIn
@@ -46,6 +53,9 @@ final class AttendanceReceipt {
       distanceMeters: mark.distanceMeters,
       privacyConsentVersion: mark.privacyConsentVersion,
       evidenceRetentionUntil: mark.evidenceRetentionUntil,
+      hospitalArea: hospitalArea.label,
+      position: position,
+      shift: shift.label,
     );
   }
 
@@ -59,6 +69,9 @@ final class AttendanceReceipt {
   final double distanceMeters;
   final String? privacyConsentVersion;
   final DateTime? evidenceRetentionUntil;
+  final String hospitalArea;
+  final String position;
+  final String shift;
 
   String get eventLabel =>
       event == EvidenceEvent.checkIn ? 'Entrada' : 'Salida';

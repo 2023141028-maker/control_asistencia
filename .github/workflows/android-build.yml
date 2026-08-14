@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   build-apk:
-    name: Compilar APK 1.6.0
+    name: Compilar APK 1.7.0
     runs-on: ubuntu-latest
     timeout-minutes: 90
 
@@ -56,15 +56,15 @@ jobs:
         run: |
           mkdir -p dist
           cp build/app/outputs/flutter-apk/app-release.apk \
-            dist/control-asistencia-1.6.0-android.apk
-          sha256sum dist/control-asistencia-1.6.0-android.apk \
-            > dist/control-asistencia-1.6.0-android.sha256.txt
+            dist/asistencia-hospitalaria-1.7.0-android.apk
+          sha256sum dist/asistencia-hospitalaria-1.7.0-android.apk \
+            > dist/asistencia-hospitalaria-1.7.0-android.sha256.txt
           ls -lh dist
 
       - name: Guardar APK para el docente
         uses: actions/upload-artifact@v4
         with:
-          name: control-asistencia-1.6.0-android
+          name: asistencia-hospitalaria-1.7.0-android
           path: dist/
           if-no-files-found: error
           retention-days: 30

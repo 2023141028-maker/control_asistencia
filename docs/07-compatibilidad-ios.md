@@ -2,7 +2,7 @@
 
 ## 1. Estado verificable
 
-La versión 1.6.0 está preparada en código para compilarse en iOS 15.5 o
+La versión 1.7.0 está preparada en código para compilarse en iOS 15.5 o
 posterior. Esta preparación no equivale por sí sola a una certificación de
 funcionamiento en iPhone. La validación final requiere macOS, Xcode, CocoaPods
 y una prueba en dispositivo físico.
@@ -106,5 +106,5 @@ exactas.
 | `16_ios_permisos.png` | Solicitud de cámara y ubicación |
 | `17_ios_flujo_real.png` | Flujo funcional en iPhone con datos ocultos |
 
-Hasta obtener estas evidencias de la versión 1.6.0, el estado correcto es
+Hasta obtener estas evidencias de la versión 1.7.0, el estado correcto es
 “preparado para iOS; validación pendiente en macOS”, no “iOS aprobado”.

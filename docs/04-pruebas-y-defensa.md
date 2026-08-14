@@ -322,14 +322,14 @@ Cada error se transforma en un mensaje comprensible para el usuario.
 | Reglas Firestore | Emulator Suite | Validar acceso e integridad |
 | Política Cloudinary | Prueba funcional | Validar formato, URL y secreto fuera del APK |
 | Prueba manual | Emulador Android | Validar flujo completo |
-| Preparación iOS | Podfile, iOS 15.5, permisos y workflow macOS | Revalidar compilación, instalación y arranque de la versión 1.6.0 |
+| Preparación iOS | Podfile, iOS 15.5, permisos y workflow macOS | Revalidar compilación, instalación y arranque de la versión 1.7.0 |
 
 ## 10. Pruebas Flutter
 
 Resultado verificado:
 
 ```text
-44 pruebas Flutter incluidas en la versión 1.6.0
+47 pruebas Flutter incluidas en la versión 1.7.0
 ```
 
 ### 10.1. Distribución
@@ -408,7 +408,7 @@ Resultado verificado:
 Resultado:
 
 ```text
-36 pruebas de reglas Firestore incluidas en la versión 1.6.0
+36 pruebas de reglas Firestore incluidas en la versión 1.7.0
 ```
 
 Casos:
@@ -663,7 +663,7 @@ Porque son registros de auditoría. Una eliminación destruiría la trazabilidad
 - La comparación facial y la prueba de vida no equivalen a una certificación
   biométrica especializada contra todos los ataques de presentación.
 - El panel administrativo es móvil; no se incluye un portal web independiente.
-- No se admiten múltiples turnos.
+- Cada trabajador tiene un turno fijo; no se programan rotaciones mensuales automáticas.
 - La detección de GPS simulado puede reforzarse con Play Integrity.
 - El proyecto configura 90 días de conservación de fotografías, pero la
   institución debe ratificar ese plazo antes del uso productivo.

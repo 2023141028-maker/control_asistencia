@@ -7,7 +7,7 @@
     <uses-feature android:name="android.hardware.camera.front" android:required="false" />
 
     <application
-        android:label="control_asistencia"
+        android:label="Asistencia Hospitalaria"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 

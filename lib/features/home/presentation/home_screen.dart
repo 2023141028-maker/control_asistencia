@@ -11,6 +11,7 @@ import '../../location/presentation/location_verification_card.dart';
 import '../../offices/domain/office.dart';
 import '../../privacy/presentation/privacy_notice_screen.dart';
 import '../../users/domain/user_profile.dart';
+import '../../users/domain/hospital_assignment.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({
@@ -75,7 +76,7 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Control de Asistencia'),
+        title: const Text('Asistencia Hospitalaria'),
         actions: [
           IconButton(
             tooltip: 'Cerrar sesión',
@@ -155,6 +156,24 @@ class HomeScreen extends StatelessWidget {
                       label: 'Estado',
                       value: profile.status.label,
                     ),
+                    const Divider(),
+                    _InformationRow(
+                      icon: Icons.local_hospital_outlined,
+                      label: 'Área',
+                      value: profile.hospitalArea!.label,
+                    ),
+                    const Divider(),
+                    _InformationRow(
+                      icon: Icons.medical_services_outlined,
+                      label: 'Cargo',
+                      value: profile.position!,
+                    ),
+                    const Divider(),
+                    _InformationRow(
+                      icon: Icons.schedule_outlined,
+                      label: 'Turno',
+                      value: profile.shift!.label,
+                    ),
                   ],
                 ),
               ),
@@ -210,6 +229,9 @@ class HomeScreen extends StatelessWidget {
               userId: profile.uid,
               employeeCode: profile.employeeCode,
               employeeName: profile.fullName,
+              hospitalArea: profile.hospitalArea!,
+              position: profile.position!,
+              shift: profile.shift!,
               office: office,
               attendanceRepository: attendanceRepository,
               registrationService: registrationService,

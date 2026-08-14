@@ -8,6 +8,7 @@ import '../../location/domain/geofence_validator.dart';
 import '../../location/domain/location_service.dart';
 import '../../offices/domain/office.dart';
 import '../../privacy/domain/privacy_policy.dart';
+import '../../users/domain/hospital_assignment.dart';
 import '../domain/attendance_day.dart';
 import '../domain/attendance_record.dart';
 import '../domain/attendance_repository.dart';
@@ -82,6 +83,7 @@ final class AttendanceRegistrationService {
     required String userId,
     required Office office,
     required bool privacyConsentAccepted,
+    HospitalShift shift = HospitalShift.morning,
   }) async {
     if (!privacyConsentAccepted) {
       throw const AttendanceFailure(
@@ -102,7 +104,7 @@ final class AttendanceRegistrationService {
       );
     }
 
-    final workDay = AttendanceDay.fromInstant(_clock());
+    final workDay = AttendanceDay.forShift(_clock(), shift);
 
     final currentRecord = await _attendanceRepository.getForDay(
       userId: normalizedUserId,

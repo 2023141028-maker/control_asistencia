@@ -1,6 +1,7 @@
 import '../../attendance/domain/attendance_record.dart';
 import '../../offices/domain/office.dart';
 import '../../users/domain/user_profile.dart';
+import '../../users/domain/hospital_assignment.dart';
 
 class AdminUserCreateCommand {
   const AdminUserCreateCommand({
@@ -11,6 +12,9 @@ class AdminUserCreateCommand {
     required this.role,
     required this.status,
     required this.officeId,
+    required this.hospitalArea,
+    required this.position,
+    required this.shift,
   });
 
   final String email;
@@ -20,6 +24,9 @@ class AdminUserCreateCommand {
   final UserRole role;
   final UserStatus status;
   final String? officeId;
+  final HospitalArea? hospitalArea;
+  final String? position;
+  final HospitalShift? shift;
 }
 
 class AdminUserUpdateCommand {
@@ -30,6 +37,9 @@ class AdminUserUpdateCommand {
     required this.role,
     required this.status,
     required this.officeId,
+    required this.hospitalArea,
+    required this.position,
+    required this.shift,
   });
 
   final String uid;
@@ -38,6 +48,9 @@ class AdminUserUpdateCommand {
   final UserRole role;
   final UserStatus status;
   final String? officeId;
+  final HospitalArea? hospitalArea;
+  final String? position;
+  final HospitalShift? shift;
 }
 
 class AdminOfficeSaveCommand {

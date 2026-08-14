@@ -1,3 +1,5 @@
+import '../../users/domain/hospital_assignment.dart';
+
 final class AttendanceDay {
   const AttendanceDay._(this.value);
 
@@ -9,6 +11,23 @@ final class AttendanceDay {
 
   factory AttendanceDay.fromInstant(DateTime instant) {
     final limaDateTime = instant.toUtc().subtract(_limaUtcOffset);
+
+    return AttendanceDay._(
+      _format(
+        year: limaDateTime.year,
+        month: limaDateTime.month,
+        day: limaDateTime.day,
+      ),
+    );
+  }
+
+  factory AttendanceDay.forShift(DateTime instant, HospitalShift shift) {
+    var limaDateTime = instant.toUtc().subtract(_limaUtcOffset);
+    final minuteOfDay = limaDateTime.hour * 60 + limaDateTime.minute;
+
+    if (shift.spansNextDay && minuteOfDay < shift.endMinute) {
+      limaDateTime = limaDateTime.subtract(const Duration(days: 1));
+    }
 
     return AttendanceDay._(
       _format(

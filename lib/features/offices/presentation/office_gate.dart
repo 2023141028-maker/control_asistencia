@@ -185,7 +185,7 @@ class _OfficeMessageScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Control de Asistencia')),
+      appBar: AppBar(title: const Text('Asistencia Hospitalaria')),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),

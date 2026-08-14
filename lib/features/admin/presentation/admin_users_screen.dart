@@ -6,6 +6,7 @@ import '../../face_verification/data/mobile_face_verification_service.dart';
 import '../../face_verification/domain/face_profile.dart';
 import '../../offices/domain/office.dart';
 import '../../users/domain/user_profile.dart';
+import '../../users/domain/hospital_assignment.dart';
 import '../domain/admin_repository.dart';
 
 class AdminUsersScreen extends StatefulWidget {
@@ -126,6 +127,9 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
           role: result.role,
           status: result.status,
           officeId: result.officeId,
+          hospitalArea: result.hospitalArea,
+          position: result.position,
+          shift: result.shift,
         ),
       );
     }, successMessage: 'Trabajador registrado correctamente.');
@@ -157,6 +161,9 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
           role: result.role,
           status: result.status,
           officeId: result.officeId,
+          hospitalArea: result.hospitalArea,
+          position: result.position,
+          shift: result.shift,
         ),
       );
     }, successMessage: 'Perfil actualizado correctamente.');
@@ -413,6 +420,13 @@ class _UserCard extends StatelessWidget {
               Text('${user.employeeCode} · ${user.role.label}'),
               Text(user.email),
               Text('Sede: ${officeName ?? user.officeId ?? 'Sin asignar'}'),
+              if (!user.isAdmin)
+                Text(
+                  'Área: ${user.hospitalArea?.label ?? 'Sin asignar'} · '
+                  'Cargo: ${user.position ?? 'Sin asignar'}',
+                ),
+              if (!user.isAdmin)
+                Text('Turno: ${user.shift?.label ?? 'Sin asignar'}'),
               const SizedBox(height: 6),
               Align(
                 alignment: Alignment.centerLeft,
@@ -485,10 +499,13 @@ class _UserFormDialogState extends State<_UserFormDialog> {
   late final TextEditingController _passwordController;
   late final TextEditingController _fullNameController;
   late final TextEditingController _employeeCodeController;
+  late final TextEditingController _positionController;
 
   late UserRole _role;
   late UserStatus _status;
   String? _officeId;
+  HospitalArea? _hospitalArea;
+  HospitalShift? _shift;
   bool _obscurePassword = true;
 
   @override
@@ -503,10 +520,13 @@ class _UserFormDialogState extends State<_UserFormDialog> {
     _employeeCodeController = TextEditingController(
       text: user?.employeeCode ?? '',
     );
+    _positionController = TextEditingController(text: user?.position ?? '');
 
     _role = user?.role ?? UserRole.employee;
     _status = user?.status ?? UserStatus.pending;
     _officeId = user?.officeId;
+    _hospitalArea = user?.hospitalArea;
+    _shift = user?.shift;
   }
 
   @override
@@ -515,6 +535,7 @@ class _UserFormDialogState extends State<_UserFormDialog> {
     _passwordController.dispose();
     _fullNameController.dispose();
     _employeeCodeController.dispose();
+    _positionController.dispose();
     super.dispose();
   }
 
@@ -523,15 +544,23 @@ class _UserFormDialogState extends State<_UserFormDialog> {
       return;
     }
 
-    if (_role == UserRole.employee &&
-        _status == UserStatus.active &&
-        _officeId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Un trabajador activo debe tener una sede.'),
-        ),
-      );
-      return;
+    if (_role == UserRole.employee && _status == UserStatus.active) {
+      if (_officeId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Un trabajador activo debe tener una sede.'),
+          ),
+        );
+        return;
+      }
+      if (_hospitalArea == null || _shift == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Selecciona el área hospitalaria y el turno.'),
+          ),
+        );
+        return;
+      }
     }
 
     Navigator.of(context).pop(
@@ -543,6 +572,11 @@ class _UserFormDialogState extends State<_UserFormDialog> {
         role: _role,
         status: _status,
         officeId: _officeId,
+        hospitalArea: _role == UserRole.employee ? _hospitalArea : null,
+        position: _role == UserRole.employee
+            ? _positionController.text.trim()
+            : null,
+        shift: _role == UserRole.employee ? _shift : null,
       ),
     );
   }
@@ -717,6 +751,81 @@ class _UserFormDialogState extends State<_UserFormDialog> {
                     setState(() => _officeId = value);
                   },
                 ),
+                if (_role == UserRole.employee) ...[
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<HospitalArea>(
+                    initialValue: _hospitalArea,
+                    decoration: const InputDecoration(
+                      labelText: 'Área hospitalaria',
+                      prefixIcon: Icon(Icons.local_hospital_outlined),
+                    ),
+                    items: HospitalArea.values
+                        .map(
+                          (area) => DropdownMenuItem(
+                            value: area,
+                            child: Text(area.label),
+                          ),
+                        )
+                        .toList(growable: false),
+                    onChanged: (value) => setState(() => _hospitalArea = value),
+                    validator: (_) {
+                      if (_status == UserStatus.active &&
+                          _hospitalArea == null) {
+                        return 'Selecciona el área hospitalaria.';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _positionController,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: const InputDecoration(
+                      labelText: 'Cargo',
+                      hintText: 'Ej.: Enfermera, médico, técnico',
+                      prefixIcon: Icon(Icons.medical_services_outlined),
+                    ),
+                    validator: (value) {
+                      final position = value?.trim() ?? '';
+                      if (_status == UserStatus.active &&
+                          (position.length < 3 || position.length > 80)) {
+                        return 'Usa entre 3 y 80 caracteres.';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<HospitalShift>(
+                    initialValue: _shift,
+                    decoration: const InputDecoration(
+                      labelText: 'Turno',
+                      prefixIcon: Icon(Icons.schedule_outlined),
+                    ),
+                    items: HospitalShift.values
+                        .map(
+                          (shift) => DropdownMenuItem(
+                            value: shift,
+                            child: Text(shift.label),
+                          ),
+                        )
+                        .toList(growable: false),
+                    onChanged: (value) => setState(() => _shift = value),
+                    validator: (_) {
+                      if (_status == UserStatus.active && _shift == null) {
+                        return 'Selecciona el turno.';
+                      }
+                      return null;
+                    },
+                  ),
+                  if (_shift?.spansNextDay == true) ...[
+                    const SizedBox(height: 8),
+                    const Text(
+                      'La salida de madrugada se asociará automáticamente a '
+                      'la jornada iniciada el día anterior.',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ],
+                ],
                 if (widget.lockPrivileges) ...[
                   const SizedBox(height: 12),
                   const Text(
@@ -754,6 +863,9 @@ class _UserFormResult {
     required this.role,
     required this.status,
     required this.officeId,
+    required this.hospitalArea,
+    required this.position,
+    required this.shift,
   });
 
   final String? email;
@@ -763,6 +875,9 @@ class _UserFormResult {
   final UserRole role;
   final UserStatus status;
   final String? officeId;
+  final HospitalArea? hospitalArea;
+  final String? position;
+  final HospitalShift? shift;
 }
 
 class _UsersMessage extends StatelessWidget {

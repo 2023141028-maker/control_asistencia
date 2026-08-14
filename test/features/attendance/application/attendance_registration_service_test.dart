@@ -9,6 +9,7 @@ import 'package:control_asistencia/features/evidence/domain/evidence_services.da
 import 'package:control_asistencia/features/location/domain/device_location.dart';
 import 'package:control_asistencia/features/location/domain/location_service.dart';
 import 'package:control_asistencia/features/offices/domain/office.dart';
+import 'package:control_asistencia/features/users/domain/hospital_assignment.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _userId = 'employee-001';
@@ -212,6 +213,26 @@ void main() {
     expect(evidenceCamera.recoverCalls, 0);
     expect(evidenceCamera.captureCalls, 0);
     expect(evidenceRepository.uploadCalls, 0);
+  });
+
+  test('la salida nocturna de madrugada usa la jornada anterior', () async {
+    final nightService = AttendanceRegistrationService(
+      attendanceRepository: attendanceRepository,
+      evidenceRepository: evidenceRepository,
+      evidenceCamera: evidenceCamera,
+      locationService: locationService,
+      clock: () => DateTime.utc(2026, 7, 31, 11), // 06:00 en Lima.
+    );
+
+    final result = await nightService.registerNextEvent(
+      userId: _userId,
+      office: office,
+      privacyConsentAccepted: true,
+      shift: HospitalShift.night,
+    );
+
+    expect(result, isNotNull);
+    expect(result!.workDay.value, '2026-07-30');
   });
 }
 

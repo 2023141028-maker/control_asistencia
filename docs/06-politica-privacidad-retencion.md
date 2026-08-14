@@ -2,7 +2,7 @@
 
 ## 1. Alcance
 
-Esta política corresponde a **Control de Asistencia 1.6.0**. Su finalidad es
+Esta política corresponde a **Asistencia Hospitalaria 1.7.0**. Su finalidad es
 documentar el tratamiento mínimo de datos necesario para validar una entrada o
 salida presencial. No convierte la constancia de asistencia en comprobante de
 pago y no incorpora cálculos tributarios.

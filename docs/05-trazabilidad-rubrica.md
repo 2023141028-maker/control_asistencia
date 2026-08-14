@@ -118,7 +118,7 @@ Cloudinary.
 | Verificación | Resultado | Evidencia |
 |---|---|---|
 | `flutter analyze` | Sin problemas; código de salida 0 | [`07-flutter-analyze.txt`](evidencias/07-flutter-analyze.txt) |
-| `flutter test` | La versión anterior aprobó 41; la versión 1.6.0 añade 3 casos de privacidad | Resultado de terminal y archivos de `test/` |
+| `flutter test` | La versión 1.7.0 contiene 47 pruebas, incluidas jornadas nocturnas y constancia hospitalaria | Resultado de terminal y archivos de `test/` |
 | Reglas de Firestore | 36 casos incluidos, con consentimiento y conservación | `firebase-tests/test/firestore.rules.test.js` |
 | Evolución del proyecto | Historial incremental desde el proyecto limpio | [`09-historial-git.txt`](evidencias/09-historial-git.txt) |
 
@@ -134,7 +134,7 @@ Cloudinary.
 | Asistencia creada en Firestore | [`05-asistencia-firestore.png`](evidencias/05-asistencia-firestore.png) |
 | Evidencia fotográfica almacenada | [`06-evidencia-storage.png`](evidencias/06-evidencia-storage.png) |
 | Evidencia histórica de una versión anterior en simulador iPhone | [`12-ios-launch.png`](evidencias/12-ios-launch.png) |
-| Preparación iOS 15.5 de la versión 1.6.0 | [`07-compatibilidad-ios.md`](07-compatibilidad-ios.md) y `.github/workflows/ios-build.yml` |
+| Preparación iOS 15.5 de la versión 1.7.0 | [`07-compatibilidad-ios.md`](07-compatibilidad-ios.md) y `.github/workflows/ios-build.yml` |
 
 ## 7. Flujo que puede demostrarse
 

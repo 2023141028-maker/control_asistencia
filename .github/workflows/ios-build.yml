@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -36,7 +39,7 @@ jobs:
         run: flutter test
 
   build-ios:
-    name: Compilar aplicación para iPhone
+    name: Compilar aplicación 1.7.0 para iPhone
     needs: validate-flutter
     # MLImage de ML Kit se distribuye para iPhone y no para el simulador.
     # La compilación sin firma valida el paquete real sin exigir una cuenta Apple.
@@ -85,7 +88,7 @@ jobs:
       - name: Guardar aplicación iOS sin firma
         uses: actions/upload-artifact@v4
         with:
-          name: control-asistencia-ios-iphone-unsigned
+          name: asistencia-hospitalaria-1.7.0-ios-iphone-unsigned
           path: build/ios/iphoneos/Runner.app
           if-no-files-found: error
           retention-days: 7

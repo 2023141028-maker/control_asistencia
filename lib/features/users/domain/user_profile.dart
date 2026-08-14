@@ -1,3 +1,5 @@
+import 'hospital_assignment.dart';
+
 enum UserRole { admin, employee }
 
 enum UserStatus { active, inactive, pending }
@@ -14,6 +16,9 @@ class UserProfile {
     required this.schemaVersion,
     required this.createdAt,
     required this.updatedAt,
+    this.hospitalArea,
+    this.position,
+    this.shift,
   });
 
   final String uid;
@@ -26,9 +31,18 @@ class UserProfile {
   final int schemaVersion;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final HospitalArea? hospitalArea;
+  final String? position;
+  final HospitalShift? shift;
 
   bool get isActive => status == UserStatus.active;
   bool get isAdmin => role == UserRole.admin;
+  bool get hasHospitalAssignment {
+    return hospitalArea != null &&
+        position != null &&
+        position!.trim().isNotEmpty &&
+        shift != null;
+  }
 }
 
 extension UserRoleLabel on UserRole {

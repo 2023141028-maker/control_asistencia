@@ -4,7 +4,7 @@
 
 | Elemento | Descripción |
 |---|---|
-| Proyecto | Control de Asistencia |
+| Proyecto | Sistema de Asistencia para Trabajadores de un Hospital |
 | Institución | Universidad Nacional de Huancavelica |
 | Sede del caso de estudio | UNH sede Pampas |
 | Autor | Wilder Huaman Quispe |

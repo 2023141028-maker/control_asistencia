@@ -481,4 +481,4 @@ También se recomienda implementar:
 - Registro de auditoría administrativa.
 - Integridad del dispositivo con App Check o Play Integrity.
 - Exportación institucional de reportes.
-- Soporte para múltiples turnos mediante un identificador adicional.
+- Programación de rotaciones mensuales; el MVP ya admite un turno fijo por trabajador.

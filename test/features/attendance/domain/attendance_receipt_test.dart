@@ -3,6 +3,7 @@ import 'package:control_asistencia/features/attendance/domain/attendance_receipt
 import 'package:control_asistencia/features/attendance/domain/attendance_record.dart';
 import 'package:control_asistencia/features/evidence/domain/attendance_evidence.dart';
 import 'package:control_asistencia/features/offices/domain/office.dart';
+import 'package:control_asistencia/features/users/domain/hospital_assignment.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -54,11 +55,17 @@ void main() {
       employeeCode: 'EMP-DEMO',
       employeeName: 'Usuario De Prueba',
       office: office,
+      hospitalArea: HospitalArea.emergency,
+      position: 'Enfermero asistencial',
+      shift: HospitalShift.night,
     );
 
     expect(receipt.number, startsWith('ASI-20260809-ENT-'));
     expect(receipt.maskedEmployeeName, 'U****** D* P*****');
     expect(receipt.verificationCode, hasLength(8));
     expect(receipt.taxLegend, contains('Impuesto no aplicable'));
+    expect(receipt.hospitalArea, 'Emergencia');
+    expect(receipt.position, 'Enfermero asistencial');
+    expect(receipt.shift, contains('Noche'));
   });
 }
