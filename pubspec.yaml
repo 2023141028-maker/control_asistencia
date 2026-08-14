@@ -61,6 +61,11 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
 
+  # ML Kit todavía usa CocoaPods en iOS. Evita enlazar FBLPromises dos
+  # veces cuando Flutter 3.44 intenta combinar CocoaPods con SwiftPM.
+  config:
+    enable-swift-package-manager: false
+
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
