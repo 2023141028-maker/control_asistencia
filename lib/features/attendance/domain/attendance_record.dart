@@ -36,6 +36,14 @@ class AttendanceMark {
     required this.distanceMeters,
     required this.isMocked,
     required this.evidencePath,
+    this.faceVerified = false,
+    this.faceSimilarity,
+    this.livenessVerified = false,
+    this.livenessChallenge,
+    this.privacyConsentAccepted = false,
+    this.privacyConsentVersion,
+    this.evidencePurpose,
+    this.evidenceRetentionUntil,
   });
 
   final DateTime capturedAt;
@@ -46,6 +54,14 @@ class AttendanceMark {
   final double distanceMeters;
   final bool isMocked;
   final String evidencePath;
+  final bool faceVerified;
+  final double? faceSimilarity;
+  final bool livenessVerified;
+  final String? livenessChallenge;
+  final bool privacyConsentAccepted;
+  final String? privacyConsentVersion;
+  final String? evidencePurpose;
+  final DateTime? evidenceRetentionUntil;
 }
 
 class AttendanceRecord {

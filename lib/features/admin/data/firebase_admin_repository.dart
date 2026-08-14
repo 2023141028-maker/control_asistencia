@@ -1,24 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
 import '../../../config/firebase_emulator_config.dart';
 import '../../attendance/domain/attendance_day.dart';
 import '../../attendance/domain/attendance_record.dart';
 import '../../offices/domain/office.dart';
 import '../../users/domain/user_profile.dart';
+import '../../users/domain/hospital_assignment.dart';
 import '../domain/admin_repository.dart';
 
 final class FirebaseAdminRepository implements AdminRepository {
-  FirebaseAdminRepository({
-    FirebaseFirestore? firestore,
-    FirebaseStorage? storage,
-  }) : _firestore = firestore ?? FirebaseFirestore.instance,
-       _storage = storage ?? FirebaseStorage.instance;
+  FirebaseAdminRepository({FirebaseFirestore? firestore})
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   final FirebaseFirestore _firestore;
-  final FirebaseStorage _storage;
 
   CollectionReference<Map<String, dynamic>> get _users {
     return _firestore.collection('users');
@@ -107,6 +103,7 @@ final class FirebaseAdminRepository implements AdminRepository {
     final fullName = command.fullName.trim();
     final employeeCode = command.employeeCode.trim().toUpperCase();
     final officeId = _normalizedOfficeId(command.officeId);
+    final position = _normalizedPosition(command.position);
 
     _validateUserFields(
       email: email,
@@ -115,6 +112,9 @@ final class FirebaseAdminRepository implements AdminRepository {
       role: command.role,
       status: command.status,
       officeId: officeId,
+      hospitalArea: command.hospitalArea,
+      position: position,
+      shift: command.shift,
     );
 
     if (command.temporaryPassword.length < 8) {
@@ -174,6 +174,9 @@ final class FirebaseAdminRepository implements AdminRepository {
         'role': _roleValue(command.role),
         'status': _statusValue(command.status),
         'officeId': officeId,
+        'hospitalArea': command.hospitalArea?.value,
+        'position': position,
+        'shift': command.shift?.value,
         'schemaVersion': 1,
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
@@ -211,6 +214,7 @@ final class FirebaseAdminRepository implements AdminRepository {
     final fullName = command.fullName.trim();
     final employeeCode = command.employeeCode.trim().toUpperCase();
     final officeId = _normalizedOfficeId(command.officeId);
+    final position = _normalizedPosition(command.position);
 
     if (uid.isEmpty || uid.contains('/')) {
       throw const AdminFailure('El UID del trabajador no es válido.');
@@ -223,6 +227,9 @@ final class FirebaseAdminRepository implements AdminRepository {
       role: command.role,
       status: command.status,
       officeId: officeId,
+      hospitalArea: command.hospitalArea,
+      position: position,
+      shift: command.shift,
     );
 
     try {
@@ -247,6 +254,9 @@ final class FirebaseAdminRepository implements AdminRepository {
         'role': _roleValue(command.role),
         'status': _statusValue(command.status),
         'officeId': officeId,
+        'hospitalArea': command.hospitalArea?.value,
+        'position': position,
+        'shift': command.shift?.value,
         'updatedAt': FieldValue.serverTimestamp(),
       });
     } on AdminFailure {
@@ -327,19 +337,19 @@ final class FirebaseAdminRepository implements AdminRepository {
 
   @override
   Future<String> getEvidenceDownloadUrl({required String evidencePath}) async {
-    final path = evidencePath.trim();
+    final url = evidencePath.trim();
+    final uri = Uri.tryParse(url);
 
-    if (!path.startsWith('attendanceEvidence/') || !path.endsWith('.jpg')) {
+    if (url != evidencePath ||
+        uri == null ||
+        uri.scheme != 'https' ||
+        uri.host != 'res.cloudinary.com' ||
+        !uri.path.contains('/image/upload/') ||
+        !(uri.path.endsWith('.jpg') || uri.path.endsWith('.jpeg'))) {
       throw const AdminFailure('La ruta de evidencia no es válida.');
     }
 
-    try {
-      return await _storage.ref(path).getDownloadURL();
-    } on FirebaseException catch (error) {
-      throw AdminFailure(_messageForFirebase(error));
-    } catch (_) {
-      throw const AdminFailure('No se pudo abrir la evidencia fotográfica.');
-    }
+    return url;
   }
 
   Future<void> _deleteCreatedAuthUser(User? user) async {
@@ -371,6 +381,9 @@ final class FirebaseAdminRepository implements AdminRepository {
       role: _roleFromValue(data['role']),
       status: _statusFromValue(data['status']),
       officeId: _nullableString(data, 'officeId'),
+      hospitalArea: hospitalAreaFromValue(data['hospitalArea']),
+      position: _nullableString(data, 'position'),
+      shift: hospitalShiftFromValue(data['shift']),
       schemaVersion: _requiredInt(data, 'schemaVersion'),
       createdAt: _requiredTimestamp(data, 'createdAt').toDate(),
       updatedAt: _requiredTimestamp(data, 'updatedAt').toDate(),
@@ -465,6 +478,10 @@ final class FirebaseAdminRepository implements AdminRepository {
       distanceMeters: _requiredNumber(data, 'distanceMeters'),
       isMocked: _requiredBool(data, 'isMocked'),
       evidencePath: _requiredString(data, 'evidencePath'),
+      faceVerified: data['faceVerified'] == true,
+      faceSimilarity: (data['faceSimilarity'] as num?)?.toDouble(),
+      livenessVerified: data['livenessVerified'] == true,
+      livenessChallenge: data['livenessChallenge'] as String?,
     );
   }
 
@@ -481,6 +498,9 @@ final class FirebaseAdminRepository implements AdminRepository {
     required UserRole role,
     required UserStatus status,
     required String? officeId,
+    required HospitalArea? hospitalArea,
+    required String? position,
+    required HospitalShift? shift,
   }) {
     if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email)) {
       throw const AdminFailure('El correo electrónico no es válido.');
@@ -496,12 +516,21 @@ final class FirebaseAdminRepository implements AdminRepository {
       throw const AdminFailure('El código debe tener entre 3 y 30 caracteres.');
     }
 
-    if (role == UserRole.employee &&
-        status == UserStatus.active &&
-        officeId == null) {
-      throw const AdminFailure(
-        'Un trabajador activo debe tener una sede asignada.',
-      );
+    if (role == UserRole.employee && status == UserStatus.active) {
+      if (officeId == null) {
+        throw const AdminFailure(
+          'Un trabajador activo debe tener una sede asignada.',
+        );
+      }
+      if (hospitalArea == null || position == null || shift == null) {
+        throw const AdminFailure(
+          'Completa el área hospitalaria, cargo y turno del trabajador.',
+        );
+      }
+    }
+
+    if (position != null && (position.length < 3 || position.length > 80)) {
+      throw const AdminFailure('El cargo debe tener entre 3 y 80 caracteres.');
     }
   }
 
@@ -561,6 +590,11 @@ final class FirebaseAdminRepository implements AdminRepository {
     }
 
     return normalized;
+  }
+
+  String? _normalizedPosition(String? value) {
+    final normalized = value?.trim();
+    return normalized == null || normalized.isEmpty ? null : normalized;
   }
 
   String _requiredString(Map<String, dynamic> data, String field) {

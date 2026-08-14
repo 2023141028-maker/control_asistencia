@@ -51,7 +51,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Control de Asistencia'), findsOneWidget);
+    expect(find.text('Asistencia Hospitalaria'), findsOneWidget);
     expect(find.text('Iniciar sesión'), findsOneWidget);
   });
 }

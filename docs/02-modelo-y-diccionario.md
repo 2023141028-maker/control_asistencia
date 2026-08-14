@@ -17,8 +17,8 @@ La solución distribuye la información entre:
 | Servicio | Información almacenada |
 |---|---|
 | Firebase Authentication | Identidad, correo, contraseña y sesión |
-| Cloud Firestore | Usuarios, sedes y asistencias |
-| Cloud Storage | Evidencias fotográficas |
+| Cloud Firestore | Usuarios, sedes, plantillas faciales y asistencias |
+| Cloudinary | Evidencias fotográficas JPEG |
 
 ## 2. Colecciones y relaciones
 
@@ -38,11 +38,8 @@ Aunque Firestore es una base documental, existen relaciones lógicas mediante lo
 users/{uid}
 offices/{officeId}
 attendances/{uid}_{YYYY-MM-DD}
-attendanceEvidence/
-└── {uid}/
-    └── {uid}_{YYYY-MM-DD}/
-        ├── check-in.jpg
-        └── check-out.jpg
+faceProfiles/{uid}
+Cloudinary/image/upload/{identificador}.jpg
 ```
 
 ## 4. Decisiones de diseño
@@ -82,7 +79,9 @@ Los campos `checkIn` y `checkOut` agrupan los datos de cada marcación:
 - Precisión.
 - Distancia.
 - Indicador de GPS simulado.
-- Ruta de evidencia.
+- URL HTTPS de evidencia.
+- Verificación facial y prueba de vida.
+- Consentimiento, finalidad y fecha de conservación.
 
 Esto mantiene la jornada como una sola unidad transaccional.
 
@@ -103,9 +102,11 @@ Esta decisión simplifica:
 
 ### 4.4. Evidencia fuera de Firestore
 
-Firestore almacena únicamente `evidencePath`. El archivo JPEG se guarda en Cloud Storage.
-
-No se guarda una URL pública porque podría exponer un token de acceso. La aplicación debe solicitar el archivo utilizando una sesión autorizada.
+Firestore almacena únicamente `evidencePath`. El archivo JPEG se guarda en
+Cloudinary. La aplicación valida que la referencia use HTTPS, el dominio
+`res.cloudinary.com`, el tipo de recurso `image/upload` y la extensión JPEG.
+El APK contiene solo el nombre del cloud y un preset restringido; nunca contiene
+el API secret.
 
 ### 4.5. Versión de esquema
 
@@ -375,45 +376,19 @@ attendances/employee-001_2026-07-30
 }
 ```
 
-# 10. Diccionario de Cloud Storage
-
-Ruta:
-
-```text
-attendanceEvidence/{userId}/{attendanceId}/{fileName}
-```
-
-## 10.1. Archivo
+# 10. Diccionario de evidencia Cloudinary
 
 | Propiedad | Tipo | Restricción |
 |---|---|---|
-| Ruta | `string` | Debe pertenecer al usuario autenticado |
-| Nombre | `string` | `check-in.jpg` o `check-out.jpg` |
-| Tipo MIME | `string` | Valor exacto `image/jpeg` |
-| Tamaño | `number` | Mayor que 0 y máximo 2 MB |
-| Contenido | Binario | Fotografía capturada desde la aplicación |
+| `evidencePath` | `string` | URL HTTPS de `res.cloudinary.com/.../image/upload/...jpg` |
+| Formato | JPEG | Firma binaria válida y máximo 2 MB |
+| Captura | Cámara frontal integrada | No admite selección desde galería |
+| Finalidad | `attendance-verification` | Uso exclusivo para identidad y presencia |
+| Consentimiento | `true`, aviso `1.1` | Obligatorio por cada marcación |
+| Conservación | `timestamp` | Aproximadamente 90 días desde el registro |
 
-## 10.2. Metadatos obligatorios
-
-| Metadato | Tipo Storage | Restricción |
-|---|---|---|
-| `ownerUid` | `string` | Debe coincidir con el propietario |
-| `attendanceId` | `string` | Debe coincidir con la carpeta |
-| `eventName` | `string` | `check-in` o `check-out` |
-| `officeId` | `string` | Debe coincidir con la sede del perfil |
-| `schemaVersion` | `string` | Valor exacto `"1"` |
-
-No se admiten metadatos adicionales.
-
-## 10.3. Integridad de la evidencia
-
-- La entrada solo puede subirse si aún no existe la asistencia.
-- La salida solo puede subirse si existe una entrada abierta.
-- Un archivo existente no puede sobrescribirse.
-- La evidencia confirmada es inmutable.
-- Una imagen no confirmada puede eliminarse para compensar una operación fallida.
-- La lectura se limita al propietario y al administrador activo.
-- No se permite listar libremente el contenido de las carpetas.
+La eliminación al vencer el plazo se ejecuta desde un proceso autorizado fuera
+del cliente móvil. Esto evita incorporar el API secret de Cloudinary en el APK.
 
 # 11. Operaciones permitidas
 
@@ -422,7 +397,7 @@ No se admiten metadatos adicionales.
 | `users` | Administrador | Propietario/admin | Administrador | Administrador | No |
 | `offices` | Administrador | Asignado/admin | Administrador | Administrador | No |
 | `attendances` | Propietario activo | Propietario/admin | Propietario con límite/admin | Solo salida válida | No |
-| Evidencias | Propietario activo | Propietario/admin | No | No | Solo si no fue confirmada |
+| Evidencias Cloudinary | Preset restringido | Según política administrativa | No desde Firestore | No | Backend autorizado al vencer retención |
 
 La ausencia de eliminación en usuarios, sedes y asistencias es una decisión de auditoría, no una omisión accidental del CRUD.
 
@@ -448,8 +423,8 @@ El repositorio acepta límites entre 1 y 50.
 # 13. Reglas contra redundancia e inconsistencias
 
 - La contraseña existe únicamente en Authentication.
-- La fotografía existe únicamente en Storage.
-- Firestore conserva la ruta, no otra copia de la imagen.
+- La fotografía existe únicamente en Cloudinary.
+- Firestore conserva la URL validada, no otra copia de la imagen.
 - La configuración geográfica existe en `offices`.
 - La asistencia conserva `officeId` como referencia histórica.
 - `createdAt` no se modifica.
@@ -464,11 +439,11 @@ El repositorio acepta límites entre 1 y 50.
 | Capa | Validaciones |
 |---|---|
 | Interfaz | Estado de carga, mensajes y botones habilitados |
-| Aplicación | Coordinación de cámara, GPS, Storage y Firestore |
+| Aplicación | Coordinación de cámara, GPS, Cloudinary y Firestore |
 | Dominio | Distancia, precisión, estado y rutas |
 | Repositorio | Tipos, ID, cronología y transacciones |
 | Firestore Rules | Autorización, estructura y transición |
-| Storage Rules | Propiedad, archivo, metadatos e inmutabilidad |
+| Preset Cloudinary | Formato, tamaño y carpeta de carga |
 | Pruebas | Casos válidos, inválidos y concurrentes |
 
 La validación del cliente mejora la experiencia, pero las reglas del servidor conservan la autoridad final.
@@ -483,9 +458,9 @@ La validación del cliente mejora la experiencia, pero las reglas del servidor c
 | Fecha laboral e ID | `lib/features/attendance/domain/attendance_day.dart` |
 | Repositorio Firestore | `lib/features/attendance/data/firestore_attendance_repository.dart` |
 | Modelo de evidencia | `lib/features/evidence/domain/attendance_evidence.dart` |
-| Repositorio Storage | `lib/features/evidence/data/firebase_evidence_repository.dart` |
+| Repositorio Cloudinary | `lib/features/evidence/data/cloudinary_evidence_repository.dart` |
+| Política de privacidad | `lib/features/privacy/domain/privacy_policy.dart` |
 | Reglas Firestore | `firestore.rules` |
-| Reglas Storage | `storage.rules` |
 | Índices | `firestore.indexes.json` |
 
 # 16. Limitaciones y extensiones futuras
@@ -500,8 +475,10 @@ y reservar el código mediante una transacción.
 
 También se recomienda implementar:
 
-- Política de retención de fotografías.
+- Automatización de la eliminación en Cloudinary al vencer los 90 días; la
+  versión móvil ya registra y valida la fecha límite, pero no contiene el
+  secreto necesario para ejecutar esa eliminación.
 - Registro de auditoría administrativa.
 - Integridad del dispositivo con App Check o Play Integrity.
 - Exportación institucional de reportes.
-- Soporte para múltiples turnos mediante un identificador adicional.
+- Programación de rotaciones mensuales; el MVP ya admite un turno fijo por trabajador.

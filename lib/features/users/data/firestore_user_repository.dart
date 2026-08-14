@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../domain/user_profile.dart';
+import '../domain/hospital_assignment.dart';
 import '../domain/user_repository.dart';
 
 final class FirestoreUserRepository implements UserRepository {
@@ -47,6 +48,9 @@ final class FirestoreUserRepository implements UserRepository {
       role: _roleFromValue(data['role']),
       status: _statusFromValue(data['status']),
       officeId: _nullableString(data, 'officeId'),
+      hospitalArea: hospitalAreaFromValue(data['hospitalArea']),
+      position: _nullableString(data, 'position'),
+      shift: hospitalShiftFromValue(data['shift']),
       schemaVersion: _requiredInt(data, 'schemaVersion'),
       createdAt: _requiredTimestamp(data, 'createdAt').toDate(),
       updatedAt: _requiredTimestamp(data, 'updatedAt').toDate(),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../config/app_navigator.dart';
 import '../features/auth/domain/auth_repository.dart';
 import '../features/auth/presentation/auth_gate.dart';
 import '../features/offices/domain/office_repository.dart';
@@ -20,8 +21,9 @@ class AttendanceApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: AppNavigator.key,
       debugShowCheckedModeBanner: false,
-      title: 'Control de Asistencia',
+      title: 'Asistencia Hospitalaria',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1565C0)),
         useMaterial3: true,

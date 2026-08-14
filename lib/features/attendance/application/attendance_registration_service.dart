@@ -1,9 +1,14 @@
 import '../../evidence/domain/attendance_evidence.dart';
 import '../../evidence/domain/evidence_services.dart';
+import '../../face_verification/data/firestore_face_profile_repository.dart';
+import '../../face_verification/data/mobile_face_verification_service.dart';
+import '../../face_verification/domain/face_profile.dart';
 import '../../location/domain/device_location.dart';
 import '../../location/domain/geofence_validator.dart';
 import '../../location/domain/location_service.dart';
 import '../../offices/domain/office.dart';
+import '../../privacy/domain/privacy_policy.dart';
+import '../../users/domain/hospital_assignment.dart';
 import '../domain/attendance_day.dart';
 import '../domain/attendance_record.dart';
 import '../domain/attendance_repository.dart';
@@ -37,6 +42,8 @@ final class AttendanceRegistrationService {
     required EvidenceRepository evidenceRepository,
     required EvidenceCamera evidenceCamera,
     required LocationService locationService,
+    FirestoreFaceProfileRepository? faceProfileRepository,
+    MobileFaceVerificationService? faceVerificationService,
     GeofenceValidator? geofenceValidator,
     AttendanceClock? clock,
   }) {
@@ -45,6 +52,8 @@ final class AttendanceRegistrationService {
       evidenceRepository,
       evidenceCamera,
       locationService,
+      faceProfileRepository,
+      faceVerificationService,
       geofenceValidator ?? const GeofenceValidator(),
       clock ?? DateTime.now,
     );
@@ -55,6 +64,8 @@ final class AttendanceRegistrationService {
     this._evidenceRepository,
     this._evidenceCamera,
     this._locationService,
+    this._faceProfileRepository,
+    this._faceVerificationService,
     this._geofenceValidator,
     this._clock,
   );
@@ -63,13 +74,26 @@ final class AttendanceRegistrationService {
   final EvidenceRepository _evidenceRepository;
   final EvidenceCamera _evidenceCamera;
   final LocationService _locationService;
+  final FirestoreFaceProfileRepository? _faceProfileRepository;
+  final MobileFaceVerificationService? _faceVerificationService;
   final GeofenceValidator _geofenceValidator;
   final AttendanceClock _clock;
 
   Future<AttendanceRegistrationResult?> registerNextEvent({
     required String userId,
     required Office office,
+    required bool privacyConsentAccepted,
+    HospitalShift shift = HospitalShift.morning,
   }) async {
+    if (!privacyConsentAccepted) {
+      throw const AttendanceFailure(
+        code: AttendanceFailureCode.privacyConsentRequired,
+        message:
+            'Debes aceptar el aviso de privacidad antes de registrar la '
+            'asistencia.',
+      );
+    }
+
     final normalizedUserId = EvidencePolicy.validateUserId(userId);
     final normalizedOfficeId = EvidencePolicy.validateOfficeId(office.id);
 
@@ -80,7 +104,7 @@ final class AttendanceRegistrationService {
       );
     }
 
-    final workDay = AttendanceDay.fromInstant(_clock());
+    final workDay = AttendanceDay.forShift(_clock(), shift);
 
     final currentRecord = await _attendanceRepository.getForDay(
       userId: normalizedUserId,
@@ -98,6 +122,31 @@ final class AttendanceRegistrationService {
     }
 
     EvidencePolicy.validateCapturedEvidence(evidence);
+
+    double? faceSimilarity;
+    final profileRepository = _faceProfileRepository;
+    final verificationService = _faceVerificationService;
+    if (profileRepository != null && verificationService != null) {
+      if (!evidence.livenessVerified || evidence.livenessChallenge == null) {
+        throw const FaceVerificationFailure(
+          'No se pudo comprobar la prueba de vida.',
+        );
+      }
+      final profile = await profileRepository.get(normalizedUserId);
+      if (profile == null ||
+          profile.modelVersion != FaceVerificationPolicy.modelVersion) {
+        throw const FaceVerificationFailure(
+          'Tu rostro aún no fue registrado. Solicita la matrícula facial al administrador.',
+        );
+      }
+      final candidate = await verificationService.createEmbedding(evidence.bytes);
+      faceSimilarity = verificationService.compare(profile.embedding, candidate);
+      if (faceSimilarity < FaceVerificationPolicy.minimumSimilarity) {
+        throw const FaceVerificationFailure(
+          'El rostro no coincide con el trabajador autenticado.',
+        );
+      }
+    }
 
     final location = await _locationService.getCurrentLocation();
 
@@ -127,6 +176,14 @@ final class AttendanceRegistrationService {
       workDay: workDay,
       location: location,
       evidencePath: evidencePath,
+      faceSimilarity: faceSimilarity,
+      livenessVerified: evidence.livenessVerified,
+      livenessChallenge: evidence.livenessChallenge,
+      privacyConsentAccepted: privacyConsentAccepted,
+      privacyConsentVersion: PrivacyPolicy.noticeVersion,
+      evidenceRetentionUntil: PrivacyPolicy.evidenceRetentionUntil(
+        location.capturedAt,
+      ),
     );
 
     try {

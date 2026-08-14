@@ -9,7 +9,9 @@ import '../../location/domain/geofence_validator.dart';
 import '../../location/domain/location_service.dart';
 import '../../location/presentation/location_verification_card.dart';
 import '../../offices/domain/office.dart';
+import '../../privacy/presentation/privacy_notice_screen.dart';
 import '../../users/domain/user_profile.dart';
+import '../../users/domain/hospital_assignment.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({
@@ -60,13 +62,21 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  void _openPrivacyNotice(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const PrivacyNoticeScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Control de Asistencia'),
+        title: const Text('Asistencia Hospitalaria'),
         actions: [
           IconButton(
             tooltip: 'Cerrar sesión',
@@ -146,6 +156,24 @@ class HomeScreen extends StatelessWidget {
                       label: 'Estado',
                       value: profile.status.label,
                     ),
+                    const Divider(),
+                    _InformationRow(
+                      icon: Icons.local_hospital_outlined,
+                      label: 'Área',
+                      value: profile.hospitalArea!.label,
+                    ),
+                    const Divider(),
+                    _InformationRow(
+                      icon: Icons.medical_services_outlined,
+                      label: 'Cargo',
+                      value: profile.position!,
+                    ),
+                    const Divider(),
+                    _InformationRow(
+                      icon: Icons.schedule_outlined,
+                      label: 'Turno',
+                      value: profile.shift!.label,
+                    ),
                   ],
                 ),
               ),
@@ -199,6 +227,11 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 24),
             AttendanceRegistrationCard(
               userId: profile.uid,
+              employeeCode: profile.employeeCode,
+              employeeName: profile.fullName,
+              hospitalArea: profile.hospitalArea!,
+              position: profile.position!,
+              shift: profile.shift!,
               office: office,
               attendanceRepository: attendanceRepository,
               registrationService: registrationService,
@@ -231,10 +264,35 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 20),
             Card(
               child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 10,
+                ),
+                leading: CircleAvatar(
+                  backgroundColor: colors.tertiaryContainer,
+                  child: Icon(
+                    Icons.privacy_tip_outlined,
+                    color: colors.onTertiaryContainer,
+                  ),
+                ),
+                title: const Text(
+                  'Privacidad y uso de evidencias',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: const Text(
+                  'Consulta la finalidad, protección y conservación de datos.',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _openPrivacyNotice(context),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Card(
+              child: ListTile(
                 leading: Icon(Icons.security, color: colors.primary),
                 title: const Text('Acceso verificado'),
                 subtitle: const Text(
-                  'Authentication, Firestore, GPS y evidencia fotográfica '
+                  'Autenticación, Firestore, GPS, biometría y evidencias '
                   'están protegidos mediante validaciones y reglas.',
                 ),
               ),

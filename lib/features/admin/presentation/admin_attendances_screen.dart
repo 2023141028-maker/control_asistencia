@@ -363,6 +363,34 @@ class _MarkDetail extends StatelessWidget {
                   '${mark.latitude.toStringAsFixed(6)}, '
                   '${mark.longitude.toStringAsFixed(6)}',
             ),
+            _DetailRow(
+              label: 'Identidad',
+              value: mark.faceVerified
+                  ? 'Verificada (${((mark.faceSimilarity ?? 0) * 100).toStringAsFixed(1)} % de similitud)'
+                  : 'Sin verificación facial',
+            ),
+            _DetailRow(
+              label: 'Prueba de vida',
+              value: mark.livenessVerified
+                  ? 'Superada (${_livenessLabel(mark.livenessChallenge)})'
+                  : 'No registrada',
+            ),
+            _DetailRow(
+              label: 'Privacidad',
+              value: mark.privacyConsentAccepted
+                  ? 'Aceptada (aviso v${mark.privacyConsentVersion})'
+                  : 'Registro anterior sin metadatos versionados',
+            ),
+            _DetailRow(
+              label: 'Finalidad',
+              value: mark.evidencePurpose ?? 'No registrada',
+            ),
+            _DetailRow(
+              label: 'Conservar hasta',
+              value: mark.evidenceRetentionUntil == null
+                  ? 'No registrada'
+                  : _formatLimaDate(mark.evidenceRetentionUntil!),
+            ),
             const SizedBox(height: 10),
             OutlinedButton.icon(
               onPressed: () => _openEvidence(context),
@@ -498,4 +526,18 @@ String _formatLimaTime(DateTime instant) {
   final second = lima.second.toString().padLeft(2, '0');
 
   return '$hour:$minute:$second';
+}
+
+String _livenessLabel(String? value) {
+  return switch (value) {
+    'turn-head' => 'giro de cabeza',
+    'tilt-head' => 'inclinación de cabeza',
+    _ => 'desafío activo',
+  };
+}
+
+String _formatLimaDate(DateTime value) {
+  final lima = value.toUtc().subtract(const Duration(hours: 5));
+  return '${lima.day.toString().padLeft(2, '0')}/'
+      '${lima.month.toString().padLeft(2, '0')}/${lima.year}';
 }

@@ -1,5 +1,5 @@
 name: control_asistencia
-description: "Sistema móvil de control de asistencia"
+description: "Sistema móvil de asistencia para trabajadores de un hospital"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.1.0+2
+version: 1.7.0+10
 
 environment:
   sdk: ^3.12.2
@@ -38,8 +38,10 @@ dependencies:
   firebase_auth: ^6.5.6
   cloud_firestore: ^6.7.1
   geolocator: ^14.0.3
-  firebase_storage: ^13.4.5
-  image_picker: ^1.2.3
+  camera: ^0.12.0+2
+  google_mlkit_face_detection: ^0.14.0
+  face_detection_tflite: ^6.8.0
+  http: ^1.6.0
 
 dev_dependencies:
   flutter_test:
@@ -58,6 +60,11 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+
+  # ML Kit todavía usa CocoaPods en iOS. Evita enlazar FBLPromises dos
+  # veces cuando Flutter 3.44 intenta combinar CocoaPods con SwiftPM.
+  config:
+    enable-swift-package-manager: false
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

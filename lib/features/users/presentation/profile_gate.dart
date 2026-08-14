@@ -130,6 +130,15 @@ class _ProfileGateState extends State<ProfileGate> {
                         'sede asignada.',
                     onSignOut: _signOut,
                   )
+                : !profile.hasHospitalAssignment
+                ? _AccessStateScreen(
+                    icon: Icons.medical_information_outlined,
+                    title: 'Perfil hospitalario incompleto',
+                    message:
+                        'El administrador debe asignarte un área hospitalaria, '
+                        'cargo y turno antes de registrar asistencia.',
+                    onSignOut: _signOut,
+                  )
                 : OfficeGate(
                     officeId: profile.officeId!,
                     profile: profile,
@@ -187,7 +196,7 @@ class _AccessStateScreen extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Control de Asistencia')),
+      appBar: AppBar(title: const Text('Asistencia Hospitalaria')),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(

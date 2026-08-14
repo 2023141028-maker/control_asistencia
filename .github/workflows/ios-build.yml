@@ -13,10 +13,10 @@ permissions:
   contents: read
 
 jobs:
-  build-ios:
-    name: Analizar, probar y compilar iOS
-    runs-on: macos-26
-    timeout-minutes: 40
+  validate-flutter:
+    name: Analizar y probar Flutter
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Descargar código
@@ -29,11 +29,6 @@ jobs:
           flutter-version: '3.44.4'
           cache: true
 
-      - name: Mostrar versiones
-        run: |
-          flutter --version
-          xcodebuild -version
-
       - name: Instalar dependencias
         run: flutter pub get
 
@@ -43,41 +38,57 @@ jobs:
       - name: Ejecutar pruebas
         run: flutter test
 
-      - name: Compilar para simulador iOS
-        run: flutter build ios --simulator --debug
+  build-ios:
+    name: Compilar aplicación 1.7.0 para iPhone
+    needs: validate-flutter
+    # MLImage de ML Kit se distribuye para iPhone y no para el simulador.
+    # La compilación sin firma valida el paquete real sin exigir una cuenta Apple.
+    runs-on: macos-15-intel
+    timeout-minutes: 90
 
-      - name: Iniciar aplicación en simulador iPhone
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v6
+
+      - name: Configurar Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '16.4'
+
+      - name: Configurar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.44.4'
+          cache: true
+
+      - name: Mostrar versiones
+        run: |
+          flutter --version
+          xcodebuild -version
+          pod --version
+
+      - name: Instalar dependencias
+        run: flutter pub get
+
+      - name: Compilar aplicación iOS sin firma
+        run: |
+          flutter build ios --debug --no-codesign \
+            --dart-define=CLOUDINARY_CLOUD_NAME=ci_demo \
+            --dart-define=CLOUDINARY_UNSIGNED_UPLOAD_PRESET=ci_demo_unsigned
+
+      - name: Verificar paquete para iPhone
         shell: bash
         run: |
-          DEVICE_UDID="$(python3 -c 'import json, subprocess; data = json.loads(subprocess.check_output(["xcrun", "simctl", "list", "devices", "available", "-j"])); devices = [device for runtime, items in data["devices"].items() if "iOS" in runtime for device in items if device.get("isAvailable") and device["name"].startswith("iPhone")]; print(devices[0]["udid"])')"
-          APP_ID="pe.edu.unh.controlAsistencia"
+          test -d build/ios/iphoneos/Runner.app
+          test -f build/ios/iphoneos/Runner.app/Runner
+          file build/ios/iphoneos/Runner.app/Runner
+          plutil -p build/ios/iphoneos/Runner.app/Info.plist
 
-          echo "Usando simulador: $DEVICE_UDID"
-          xcrun simctl boot "$DEVICE_UDID" || true
-          xcrun simctl bootstatus "$DEVICE_UDID" -b
-
-          xcrun simctl install \
-            "$DEVICE_UDID" \
-            build/ios/iphonesimulator/Runner.app
-
-          LAUNCH_OUTPUT="$(xcrun simctl launch "$DEVICE_UDID" "$APP_ID")"
-          echo "$LAUNCH_OUTPUT"
-          APP_PID="${LAUNCH_OUTPUT##*: }"
-
-          sleep 12
-          kill -0 "$APP_PID"
-
-          xcrun simctl io \
-            "$DEVICE_UDID" \
-            screenshot \
-            build/ios/ios-launch.png
-
-      - name: Guardar aplicación del simulador
+      - name: Guardar aplicación iOS sin firma
         uses: actions/upload-artifact@v4
         with:
-          name: control-asistencia-ios-simulator
-          path: |
-            build/ios/iphonesimulator/Runner.app
-            build/ios/ios-launch.png
+          name: asistencia-hospitalaria-1.7.0-ios-iphone-unsigned
+          path: build/ios/iphoneos/Runner.app
           if-no-files-found: error
           retention-days: 7

@@ -37,6 +37,9 @@ service cloud.firestore {
           'role',
           'status',
           'officeId',
+          'hospitalArea',
+          'position',
+          'shift',
           'schemaVersion',
           'createdAt',
           'updatedAt'
@@ -49,6 +52,9 @@ service cloud.firestore {
           'role',
           'status',
           'officeId',
+          'hospitalArea',
+          'position',
+          'shift',
           'schemaVersion',
           'createdAt',
           'updatedAt'
@@ -75,9 +81,42 @@ service cloud.firestore {
           )
         ) &&
         (
+          data.hospitalArea == null ||
+          data.hospitalArea in [
+            'emergency',
+            'hospitalization',
+            'outpatient',
+            'surgery',
+            'pediatrics',
+            'laboratory',
+            'pharmacy',
+            'admission',
+            'administration',
+            'cleaning',
+            'security'
+          ]
+        ) &&
+        (
+          data.position == null ||
+          (
+            data.position is string &&
+            data.position.size() >= 3 &&
+            data.position.size() <= 80
+          )
+        ) &&
+        (
+          data.shift == null ||
+          data.shift in ['morning', 'afternoon', 'night', 'guard-24h']
+        ) &&
+        (
           data.role == 'admin' ||
           data.status != 'active' ||
-          data.officeId is string
+          (
+            data.officeId is string &&
+            data.hospitalArea is string &&
+            data.position is string &&
+            data.shift is string
+          )
         ) &&
         data.schemaVersion is int &&
         data.schemaVersion == 1 &&
@@ -171,6 +210,21 @@ service cloud.firestore {
         attendanceOffice(officeId).schemaVersion == 1;
     }
 
+    function hasActiveFaceConsent(userId) {
+      return exists(
+          /databases/$(database)/documents/faceProfiles/$(userId)
+        ) &&
+        get(
+          /databases/$(database)/documents/faceProfiles/$(userId)
+        ).data.active == true &&
+        get(
+          /databases/$(database)/documents/faceProfiles/$(userId)
+        ).data.consentAccepted == true &&
+        get(
+          /databases/$(database)/documents/faceProfiles/$(userId)
+        ).data.consentVersion == '1.0';
+    }
+
     function validAttendanceBase(attendanceId, data) {
       return data.keys().hasAll([
           'userId',
@@ -220,13 +274,7 @@ service cloud.firestore {
         data.updatedAt is timestamp;
     }
 
-    function validAttendanceMark(
-      mark,
-      officeData,
-      userId,
-      attendanceId,
-      eventName
-    ) {
+    function validAttendanceMark(mark, officeData) {
       return mark is map &&
         mark.keys().hasAll([
           'capturedAt',
@@ -235,7 +283,17 @@ service cloud.firestore {
           'accuracyMeters',
           'distanceMeters',
           'isMocked',
-          'evidencePath'
+          'evidencePath',
+          'faceVerified',
+          'faceSimilarity',
+          'faceModelVersion',
+          'livenessVerified',
+          'livenessChallenge',
+          'livenessMethod',
+          'privacyConsentAccepted',
+          'privacyConsentVersion',
+          'evidencePurpose',
+          'evidenceRetentionUntil'
         ]) &&
         mark.keys().hasOnly([
           'capturedAt',
@@ -244,7 +302,17 @@ service cloud.firestore {
           'accuracyMeters',
           'distanceMeters',
           'isMocked',
-          'evidencePath'
+          'evidencePath',
+          'faceVerified',
+          'faceSimilarity',
+          'faceModelVersion',
+          'livenessVerified',
+          'livenessChallenge',
+          'livenessMethod',
+          'privacyConsentAccepted',
+          'privacyConsentVersion',
+          'evidencePurpose',
+          'evidenceRetentionUntil'
         ]) &&
         mark.capturedAt is timestamp &&
         mark.recordedAt is timestamp &&
@@ -273,15 +341,28 @@ service cloud.firestore {
 
         mark.isMocked is bool &&
         mark.isMocked == false &&
+        mark.faceVerified == true &&
+        mark.faceSimilarity is number &&
+        mark.faceSimilarity >= 0.60 &&
+        mark.faceSimilarity <= 1.0 &&
+        mark.faceModelVersion == 'mobilefacenet_192_v1' &&
+        mark.livenessVerified == true &&
+        mark.livenessChallenge in ['turn-head', 'tilt-head'] &&
+        mark.livenessMethod == 'active-head-movement-v1' &&
+        mark.privacyConsentAccepted == true &&
+        mark.privacyConsentVersion == '1.1' &&
+        mark.evidencePurpose == 'attendance-verification' &&
+        mark.evidenceRetentionUntil is timestamp &&
+        mark.evidenceRetentionUntil >=
+          request.time + duration.value(89, 'd') &&
+        mark.evidenceRetentionUntil <=
+          request.time + duration.value(91, 'd') &&
         mark.evidencePath is string &&
-        mark.evidencePath ==
-          'attendanceEvidence/' +
-          userId +
-          '/' +
-          attendanceId +
-          '/' +
-          eventName +
-          '.jpg';
+        mark.evidencePath.size() <= 1000 &&
+        mark.evidencePath.matches(
+          '^https://res\\.cloudinary\\.com/' +
+          '[A-Za-z0-9_-]+/image/upload/.+\\.(jpg|jpeg)$'
+        );
     }
 
     function canReadAttendance(data) {
@@ -323,6 +404,9 @@ service cloud.firestore {
           'role',
           'status',
           'officeId',
+          'hospitalArea',
+          'position',
+          'shift',
           'updatedAt'
         ]) &&
         request.resource.data.updatedAt == request.time &&
@@ -363,6 +447,43 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    match /faceProfiles/{userId} {
+      allow get: if isActiveAdmin() ||
+        (isActiveUser() && request.auth.uid == userId);
+      allow list: if false;
+
+      allow create, update: if isActiveAdmin() &&
+        request.resource.data.keys().hasAll([
+          'userId', 'embedding', 'modelVersion', 'consentAccepted',
+          'consentVersion', 'privacyNoticeVersion',
+          'retentionPolicyVersion', 'consentMethod', 'consentRecordedAt',
+          'consentRecordedBy', 'enrolledBy', 'active', 'createdAt', 'updatedAt'
+        ]) &&
+        request.resource.data.keys().hasOnly([
+          'userId', 'embedding', 'modelVersion', 'consentAccepted',
+          'consentVersion', 'privacyNoticeVersion',
+          'retentionPolicyVersion', 'consentMethod', 'consentRecordedAt',
+          'consentRecordedBy', 'enrolledBy', 'active', 'createdAt', 'updatedAt'
+        ]) &&
+        request.resource.data.userId == userId &&
+        request.resource.data.embedding is list &&
+        request.resource.data.embedding.size() == 192 &&
+        request.resource.data.modelVersion == 'mobilefacenet_192_v1' &&
+        request.resource.data.consentAccepted == true &&
+        request.resource.data.consentVersion == '1.0' &&
+        request.resource.data.privacyNoticeVersion == '1.1' &&
+        request.resource.data.retentionPolicyVersion == '1.0' &&
+        request.resource.data.consentMethod == 'in-person-explicit' &&
+        request.resource.data.consentRecordedAt == request.time &&
+        request.resource.data.consentRecordedBy == request.auth.uid &&
+        request.resource.data.enrolledBy == request.auth.uid &&
+        request.resource.data.active == true &&
+        request.resource.data.createdAt == request.time &&
+        request.resource.data.updatedAt == request.time;
+
+      allow delete: if isActiveAdmin();
+    }
+
     match /attendances/{attendanceId} {
       // Autoriza el documento diario propio aunque todavía no exista.
       // La autorización usa el UID incluido en el ID, no resource.data.
@@ -384,14 +505,12 @@ service cloud.firestore {
         currentUser().officeId ==
           request.resource.data.officeId &&
         isActiveOffice(request.resource.data.officeId) &&
+        hasActiveFaceConsent(request.resource.data.userId) &&
         request.resource.data.status == 'checked-in' &&
         request.resource.data.checkOut == null &&
         validAttendanceMark(
           request.resource.data.checkIn,
-          attendanceOffice(request.resource.data.officeId),
-          request.resource.data.userId,
-          attendanceId,
-          'check-in'
+          attendanceOffice(request.resource.data.officeId)
         ) &&
         request.resource.data.createdAt == request.time &&
         request.resource.data.updatedAt == request.time;
@@ -405,6 +524,7 @@ service cloud.firestore {
         request.auth.uid == resource.data.userId &&
         currentUser().officeId == resource.data.officeId &&
         isActiveOffice(resource.data.officeId) &&
+        hasActiveFaceConsent(resource.data.userId) &&
         resource.data.status == 'checked-in' &&
         resource.data.checkOut == null &&
         request.resource.data.status == 'completed' &&
@@ -416,10 +536,7 @@ service cloud.firestore {
         ]) &&
         validAttendanceMark(
           request.resource.data.checkOut,
-          attendanceOffice(resource.data.officeId),
-          resource.data.userId,
-          attendanceId,
-          'check-out'
+          attendanceOffice(resource.data.officeId)
         ) &&
         request.resource.data.checkOut.capturedAt >=
           resource.data.checkIn.recordedAt &&

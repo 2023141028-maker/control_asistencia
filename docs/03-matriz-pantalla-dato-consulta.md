@@ -54,9 +54,11 @@ No se permite llegar directamente a `HomeScreen`. Antes deben validarse:
 | Inicio autorizado | `HomeScreen` | Perfil y sede | Composición de datos ya consultados | Memoria de la aplicación |
 | Validación geográfica | `LocationVerificationCard` | GPS y configuración de sede | Obtener ubicación y calcular distancia | Geolocator y dominio |
 | Jornada actual | `AttendanceRegistrationCard` | UID y fecha laboral | Leer `attendances/{uid}_{fecha}` | Cloud Firestore |
-| Confirmación de marcación | `AlertDialog` | Tipo de evento | Confirmación local | Flutter |
-| Captura fotográfica | `ImagePickerEvidenceCamera` | Imagen frontal | Capturar JPEG | Cámara del dispositivo |
-| Subida de evidencia | `FirebaseEvidenceRepository` | Archivo y metadatos | Crear objeto en Storage | Cloud Storage |
+| Aviso de privacidad | `PrivacyNoticeScreen` | Finalidad, datos y conservación | Consulta local de política versionada | Flutter |
+| Confirmación de marcación | `AlertDialog` | Evento y consentimiento | Exigir casilla antes de continuar | Flutter |
+| Captura y prueba de vida | `EmbeddedEvidenceCamera` | Dos imágenes frontales y pose | Capturar JPEG y validar desafío | Cámara y ML Kit |
+| Comparación facial | `MobileFaceVerificationService` | Plantilla y candidato | Calcular similitud local | TensorFlow Lite |
+| Subida de evidencia | `CloudinaryEvidenceRepository` | JPEG validado | Carga mediante preset restringido | Cloudinary |
 | Registrar entrada | `AttendanceRegistrationService` | Usuario, sede, GPS y evidencia | Transacción de creación | Cloud Firestore |
 | Registrar salida | `AttendanceRegistrationService` | Jornada abierta, GPS y evidencia | Transacción de actualización | Cloud Firestore |
 | Jornada completada | `AttendanceRegistrationCard` | `status` y `checkOut` | Interpretación del documento diario | Modelo de dominio |
@@ -65,7 +67,7 @@ No se permite llegar directamente a `HomeScreen`. Antes deben validarse:
 | Gestión de trabajadores | `AdminUsersScreen` | Perfil, rol, estado y sede | Listar, crear y actualizar | Authentication y Firestore |
 | Gestión de sedes | `AdminOfficesScreen` | Configuración geográfica | Listar, crear y actualizar | Cloud Firestore |
 | Control de asistencias | `AdminAttendancesScreen` | Trabajador, sede, jornada y marcas | Listado limitado y búsqueda local | Cloud Firestore |
-| Evidencia administrativa | `AdminAttendancesScreen` | `evidencePath` | Obtener URL protegida | Cloud Storage |
+| Evidencia administrativa | `AdminAttendancesScreen` | `evidencePath` | Abrir URL HTTPS validada | Cloudinary |
 | Cerrar sesión | AppBar/ProfileGate | Sesión actual | `signOut` | Firebase Authentication |
 
 ## 4. Pantalla de inicio de sesión
@@ -462,32 +464,28 @@ transaction.update(
 
 No se permite modificar `checkIn`, `userId`, `officeId`, `workDate`, `createdAt` ni `schemaVersion`.
 
-## 14. Operaciones de Storage
+## 14. Operaciones de Cloudinary
 
 ### Crear evidencia
 
 Componente:
 
 ```text
-FirebaseEvidenceRepository
+CloudinaryEvidenceRepository
 ```
 
-Rutas:
+La respuesta aceptada debe tener esta forma:
 
 ```text
-attendanceEvidence/{uid}/{attendanceId}/check-in.jpg
-attendanceEvidence/{uid}/{attendanceId}/check-out.jpg
+https://res.cloudinary.com/{cloud}/image/upload/{identificador}.jpg
 ```
 
-### Eliminar evidencia provisional
+### Eliminar al vencer la conservación
 
-La eliminación no representa un CRUD libre. Solo compensa un fallo ocurrido antes de que Firestore confirme la marcación.
-
-Una evidencia confirmada no puede:
-
-- Sobrescribirse.
-- Modificarse.
-- Eliminarse.
+El cliente móvil no contiene el API secret. La eliminación efectiva se delega a
+un backend o proceso administrativo autorizado cuando vence
+`evidenceRetentionUntil`. La aplicación registra la finalidad, el consentimiento
+y el plazo, y nunca intenta incorporar credenciales administrativas al APK.
 
 ## 15. Consulta de historial
 
@@ -537,8 +535,8 @@ El repositorio, las reglas y la pantalla visual del historial están implementad
 | Obtener jornada | `getForDay` | `attendances/{uid}_{fecha}` | `AttendanceRegistrationCard` |
 | Consultar historial | `watchHistory` | Consulta `attendances` | `AttendanceHistoryScreen` |
 | Capturar evidencia | `capture` | Cámara frontal | Servicio de registro |
-| Subir evidencia | `upload` | Cloud Storage | Servicio de registro |
-| Eliminar provisional | `delete` | Cloud Storage | Compensación de error |
+| Subir evidencia | `upload` | Cloudinary | Servicio de registro |
+| Registrar conservación | `_markData` | Firestore | Repositorio de asistencia |
 | Registrar entrada | `registerCheckIn` | Transacción Firestore | Servicio de registro |
 | Registrar salida | `registerCheckOut` | Transacción Firestore | Servicio de registro |
 

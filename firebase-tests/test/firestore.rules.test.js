@@ -55,6 +55,9 @@ function profile(
     role,
     status,
     officeId,
+    hospitalArea: role === "employee" ? "emergency" : null,
+    position: role === "employee" ? "Enfermero asistencial" : null,
+    shift: role === "employee" ? "night" : null,
     schemaVersion: 1,
     createdAt: fixedTimestamp(),
     updatedAt: fixedTimestamp(),
@@ -76,13 +79,42 @@ function office(latitude = LATITUDE, longitude = LONGITUDE) {
   };
 }
 
+function activeFaceConsent(uid) {
+  return {
+    userId: uid,
+    consentAccepted: true,
+    consentVersion: "1.0",
+    active: true,
+  };
+}
+
+function enrolledFaceProfile(uid, enrolledBy = ADMIN_ID) {
+  return {
+    userId: uid,
+    embedding: Array(192).fill(0.01),
+    modelVersion: "mobilefacenet_192_v1",
+    consentAccepted: true,
+    consentVersion: "1.0",
+    privacyNoticeVersion: "1.1",
+    retentionPolicyVersion: "1.0",
+    consentMethod: "in-person-explicit",
+    consentRecordedAt: serverTimestamp(),
+    consentRecordedBy: enrolledBy,
+    enrolledBy,
+    active: true,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  };
+}
+
 const attendanceId = (uid = USER_ID) => `${uid}_${WORK_DATE}`;
 
 const attendanceRef = (database, uid = USER_ID) =>
   doc(database, "attendances", attendanceId(uid));
 
 const evidencePath = (uid, event) =>
-  `attendanceEvidence/${uid}/${attendanceId(uid)}/${event}.jpg`;
+  `https://res.cloudinary.com/demo/image/upload/v1/attendanceEvidence/` +
+  `${uid}/${attendanceId(uid)}/${event}.jpg`;
 
 function mark({
   uid = USER_ID,
@@ -102,6 +134,18 @@ function mark({
     distanceMeters,
     isMocked,
     evidencePath: customEvidencePath ?? evidencePath(uid, event),
+    faceVerified: true,
+    faceSimilarity: 0.75,
+    faceModelVersion: "mobilefacenet_192_v1",
+    livenessVerified: true,
+    livenessChallenge: "turn-head",
+    livenessMethod: "active-head-movement-v1",
+    privacyConsentAccepted: true,
+    privacyConsentVersion: "1.1",
+    evidencePurpose: "attendance-verification",
+    evidenceRetentionUntil: Timestamp.fromDate(
+      new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+    ),
   };
 }
 
@@ -179,6 +223,18 @@ async function seedBaseData() {
       setDoc(
         doc(database, "offices", OTHER_OFFICE_ID),
         office(-12.4, -74.87),
+      ),
+      setDoc(
+        doc(database, "faceProfiles", USER_ID),
+        activeFaceConsent(USER_ID),
+      ),
+      setDoc(
+        doc(database, "faceProfiles", OTHER_USER_ID),
+        activeFaceConsent(OTHER_USER_ID),
+      ),
+      setDoc(
+        doc(database, "faceProfiles", INACTIVE_USER_ID),
+        activeFaceConsent(INACTIVE_USER_ID),
       ),
     ]);
   });
@@ -620,6 +676,47 @@ describe("Reglas de seguridad de asistencias", function () {
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         },
+      ),
+    );
+  });
+
+  it("34 rechaza asistencia sin consentimiento facial activo", async () => {
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      await deleteDoc(
+        doc(context.firestore(), "faceProfiles", USER_ID),
+      );
+    });
+
+    const database = authenticatedDb(USER_ID);
+
+    await assertFails(
+      setDoc(attendanceRef(database), entry()),
+    );
+  });
+
+  it("35 rechaza una marcación sin aceptación de privacidad", async () => {
+    const database = authenticatedDb(USER_ID);
+
+    await assertFails(
+      setDoc(
+        attendanceRef(database),
+        entry({
+          markOverrides: {
+            privacyConsentAccepted: false,
+          },
+        }),
+      ),
+    );
+  });
+
+  it("36 permite al administrador matricular con consentimiento trazable", async () => {
+    const database = authenticatedDb(ADMIN_ID);
+    const newUserId = "employee-face-new";
+
+    await assertSucceeds(
+      setDoc(
+        doc(database, "faceProfiles", newUserId),
+        enrolledFaceProfile(newUserId),
       ),
     );
   });

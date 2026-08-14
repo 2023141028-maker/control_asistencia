@@ -10,6 +10,12 @@ class AttendanceRegistrationCommand {
     required this.workDay,
     required this.location,
     required this.evidencePath,
+    required this.privacyConsentAccepted,
+    required this.privacyConsentVersion,
+    required this.evidenceRetentionUntil,
+    this.faceSimilarity,
+    this.livenessVerified = false,
+    this.livenessChallenge,
   });
 
   final String userId;
@@ -17,6 +23,12 @@ class AttendanceRegistrationCommand {
   final AttendanceDay workDay;
   final DeviceLocation location;
   final String evidencePath;
+  final bool privacyConsentAccepted;
+  final String privacyConsentVersion;
+  final DateTime evidenceRetentionUntil;
+  final double? faceSimilarity;
+  final bool livenessVerified;
+  final String? livenessChallenge;
 }
 
 abstract interface class AttendanceRepository {
@@ -45,6 +57,7 @@ enum AttendanceFailureCode {
   alreadyCheckedOut,
   locationNotAllowed,
   evidenceRequired,
+  privacyConsentRequired,
   permissionDenied,
   unavailable,
   invalidData,

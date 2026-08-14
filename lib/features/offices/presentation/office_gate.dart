@@ -4,8 +4,10 @@ import '../../attendance/application/attendance_registration_service.dart';
 import '../../attendance/data/firestore_attendance_repository.dart';
 import '../../attendance/domain/attendance_repository.dart';
 import '../../auth/domain/auth_repository.dart';
-import '../../evidence/data/firebase_evidence_repository.dart';
-import '../../evidence/data/image_picker_evidence_camera.dart';
+import '../../evidence/data/cloudinary_evidence_repository.dart';
+import '../../evidence/data/embedded_evidence_camera.dart';
+import '../../face_verification/data/firestore_face_profile_repository.dart';
+import '../../face_verification/data/mobile_face_verification_service.dart';
 import '../../home/presentation/home_screen.dart';
 import '../../location/data/geolocator_location_service.dart';
 import '../../location/domain/geofence_validator.dart';
@@ -53,9 +55,11 @@ class _OfficeGateState extends State<OfficeGate> {
 
     _registrationService = AttendanceRegistrationService(
       attendanceRepository: _attendanceRepository,
-      evidenceRepository: FirebaseEvidenceRepository(),
-      evidenceCamera: ImagePickerEvidenceCamera(),
+      evidenceRepository: CloudinaryEvidenceRepository(),
+      evidenceCamera: const EmbeddedEvidenceCamera(requireLiveness: true),
       locationService: _locationService,
+      faceProfileRepository: FirestoreFaceProfileRepository(),
+      faceVerificationService: MobileFaceVerificationService(),
       geofenceValidator: _geofenceValidator,
     );
 
@@ -181,7 +185,7 @@ class _OfficeMessageScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Control de Asistencia')),
+      appBar: AppBar(title: const Text('Asistencia Hospitalaria')),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
